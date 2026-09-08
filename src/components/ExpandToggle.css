@@ -1,0 +1,40 @@
+.expand-toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--border);
+  background: none;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0;
+}
+
+.expand-toggle:hover {
+  border-color: var(--accent);
+}
+
+.expand-toggle::before,
+.expand-toggle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--text-muted);
+  border-radius: 1px;
+  transform: translate(-50%, -50%);
+}
+
+.expand-toggle::before {
+  width: 10px;
+  height: 1.5px;
+}
+
+.expand-toggle::after {
+  width: 1.5px;
+  height: 10px;
+}
+
+.expand-toggle.expanded::after {
+  display: none;
+}

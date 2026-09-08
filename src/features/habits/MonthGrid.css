@@ -1,0 +1,102 @@
+.month-grid-scroll {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.month-grid-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Only show a scrollbar once more than 3 months are loaded. */
+.month-grid-scroll.scrollable {
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+}
+
+.month-grid-scroll.scrollable::-webkit-scrollbar {
+  display: block;
+  height: 6px;
+}
+
+.month-grid-scroll.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.month-grid-scroll.scrollable::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.month-grid-block {
+  flex: 0 0 auto;
+  width: 160px;
+}
+
+.month-grid-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  white-space: nowrap;
+}
+
+.month-grid-more {
+  flex: 0 0 auto;
+  align-self: center;
+  background: none;
+  border: none;
+  color: var(--accent-dark);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.month-grid-more:hover {
+  text-decoration: underline;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.month-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+}
+
+.month-cell:hover:not(:disabled) {
+  background: var(--border);
+}
+
+.month-cell.done {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.month-cell.done:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.month-cell:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

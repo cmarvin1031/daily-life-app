@@ -1,0 +1,69 @@
+.schedule-grid {
+  display: flex;
+  flex-direction: column;
+  max-height: 560px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.schedule-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.schedule-row:last-child {
+  border-bottom: none;
+}
+
+.schedule-hour {
+  flex-shrink: 0;
+  width: 76px;
+  padding-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.schedule-row-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.schedule-gcal-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--chip-blue);
+  background: color-mix(in srgb, var(--chip-blue) 12%, white);
+  border-radius: var(--radius-md);
+  padding: 4px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.schedule-gcal-time {
+  font-weight: 700;
+}
+
+.schedule-input {
+  flex: 1;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 6px 8px;
+  border-radius: var(--radius-md);
+}
+
+.schedule-input:hover {
+  background: var(--bg);
+}
+
+.schedule-input:focus {
+  background: var(--bg);
+  border-color: transparent;
+}

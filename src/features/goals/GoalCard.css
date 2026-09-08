@@ -1,0 +1,187 @@
+.goal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.goal-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.goal-card-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.goal-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-card-meta {
+  font-size: 12px;
+}
+
+/* Expanded details panel */
+
+.goal-details {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.goal-details-top {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.goal-edit-btn {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.goal-edit-btn:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.goal-details-title-input {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 6px 10px;
+}
+
+.goal-details-status-row {
+  display: flex;
+  gap: 8px;
+}
+
+.goal-status-btn {
+  border: 1.5px solid transparent;
+  background: none;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.goal-status-btn.active {
+  border-color: var(--text);
+}
+
+.goal-details-category-toggle {
+  display: flex;
+  align-self: flex-start;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px;
+}
+
+.goal-details-category-toggle button {
+  border: none;
+  background: none;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.goal-details-category-toggle button.active {
+  background: var(--accent-dark);
+  color: #ffffff;
+}
+
+.goal-details-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.goal-details-field input[type='date'] {
+  align-self: flex-start;
+}
+
+.goal-details-field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.goal-details-status {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.goal-details-description {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+.goal-details-section h4 {
+  margin-bottom: 10px;
+}
+
+.goal-counter {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goal-counter-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.goal-counter-pips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.goal-counter-pip {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  padding: 0;
+}
+
+.goal-counter-pip:hover {
+  border-color: var(--accent);
+}
+
+.goal-counter-pip.filled {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.goal-delete-btn {
+  align-self: flex-start;
+  font-size: 13px;
+}

@@ -1,0 +1,42 @@
+.journal-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 720px;
+}
+
+.journal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.journal-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.journal-status {
+  font-size: 12px;
+}
+
+.journal-textarea {
+  width: 100%;
+  min-height: 420px;
+  resize: vertical;
+  border: none;
+  background: transparent;
+  padding: 4px 2px;
+  font-size: 15px;
+  line-height: 1.6;
+  font-family: inherit;
+}
+
+.journal-textarea:focus {
+  outline: none;
+}
+
+.journal-textarea:disabled {
+  opacity: 0.5;
+}
