@@ -1,4 +1,4 @@
-export default function ProgressRing({ value, total, size = 56, strokeWidth = 5 }) {
+export default function ProgressRing({ value, total, size = 56, strokeWidth = 5, centerText }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const fraction = total > 0 ? value / total : 0;
@@ -20,8 +20,14 @@ export default function ProgressRing({ value, total, size = 56, strokeWidth = 5 
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         style={{ transition: 'stroke-dashoffset 0.3s ease' }}
       />
-      <text x="50%" y="50%" textAnchor="middle" dominantBaseline="central" className="progress-ring-text">
-        {value}
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dominantBaseline="central"
+        className={centerText ? 'progress-ring-text progress-ring-text--small' : 'progress-ring-text'}
+      >
+        {centerText ?? value}
       </text>
     </svg>
   );

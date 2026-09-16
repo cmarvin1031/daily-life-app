@@ -10,49 +10,107 @@
   gap: 8px;
 }
 
-/* At-a-glance tiles: phone only (desktop has the room to show the full
-   cards side by side, so the strip would just repeat them). */
-.dashboard-stats {
+/* Compact habits block: phone only (desktop shows the full Habits card in
+   the right-hand column instead). */
+.dashboard-habits-compact {
   display: none;
 }
 
-.dashboard-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 12px 14px;
+.dashboard-habits-compact-title {
   border: none;
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 700;
   color: var(--text);
   cursor: pointer;
-  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   -webkit-tap-highlight-color: transparent;
 }
 
-.dashboard-stat:active {
-  transform: scale(0.98);
-}
-
-.dashboard-stat-value {
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.dashboard-stat-of {
-  font-size: 14px;
-  font-weight: 600;
+.dashboard-habits-compact-title span {
   color: var(--text-muted);
+  font-weight: 600;
 }
 
-.dashboard-stat-label {
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
+.dashboard-habits-compact-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-ring-text--small {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.dashboard-habit-chips {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard-habit-chip {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--chip-color) 14%, white);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--chip-color) 40%, white);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboard-habit-chip:active {
+  transform: scale(0.92);
+}
+
+.dashboard-habit-chip-avatar {
+  font-size: 19px;
+  line-height: 1;
+  color: var(--chip-color);
+  font-weight: 700;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+.dashboard-habit-chip.done {
+  background: var(--chip-color);
+  box-shadow: none;
+}
+
+.dashboard-habit-chip.done .dashboard-habit-chip-avatar {
+  color: #ffffff;
+  opacity: 1;
+}
+
+.dashboard-habit-chip-check {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--surface);
 }
 
 .dashboard-grid {
@@ -433,10 +491,18 @@
     display: none; /* the top bar carries date + greeting on phones */
   }
 
-  .dashboard-stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
+  .dashboard-habits-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dashboard-habits-compact .dashboard-card-header {
+    margin-bottom: 0;
+  }
+
+  .dashboard-habits-card {
+    display: none; /* replaced by the compact block above on phones */
   }
 
   .dashboard-grid,

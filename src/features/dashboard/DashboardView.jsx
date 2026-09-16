@@ -9,6 +9,7 @@ import ProgressRing from '../habits/ProgressRing.jsx';
 import { paletteColorValue } from '../../lib/colorPalette.js';
 import { useGoalTaskCounts, useGoals } from '../goals/useGoalsData.js';
 import GoalProgressMini from './GoalProgressMini.jsx';
+import DashboardHabits from './DashboardHabits.jsx';
 import './DashboardView.css';
 
 export default function DashboardView({ onNavigate }) {
@@ -70,8 +71,6 @@ export default function DashboardView({ onNavigate }) {
   const checklistGoalIds = activeGoals.filter((g) => g.goal_type !== 'counter').map((g) => g.id);
   const { data: taskCounts = {} } = useGoalTaskCounts(checklistGoalIds);
 
-  const eventsLeft = allDayEvents.length + timedItems.length;
-
   return (
     <div className="dashboard-view">
       {/* Desktop header only: on phones the top bar carries the date and
@@ -81,24 +80,15 @@ export default function DashboardView({ onNavigate }) {
         <p className="text-muted dashboard-subtitle">Plan, prioritize, and accomplish your day with ease.</p>
       </div>
 
-      {/* Phone-only at-a-glance strip; each tile jumps to its section. */}
-      <div className="dashboard-stats">
-        <button className="dashboard-stat" onClick={() => onNavigate('planner')}>
-          <span className="dashboard-stat-value">{eventsLeft}</span>
-          <span className="text-muted dashboard-stat-label">{eventsLeft === 1 ? 'event left' : 'events left'}</span>
-        </button>
-        <button className="dashboard-stat" onClick={() => onNavigate('planner')}>
-          <span className="dashboard-stat-value">{todosRemaining.length}</span>
-          <span className="text-muted dashboard-stat-label">{todosRemaining.length === 1 ? 'to-do left' : 'to-dos left'}</span>
-        </button>
-        <button className="dashboard-stat" onClick={() => onNavigate('habits')}>
-          <span className="dashboard-stat-value">
-            {habitsDoneToday}
-            <span className="dashboard-stat-of">/{habits.length}</span>
-          </span>
-          <span className="text-muted dashboard-stat-label">habits done</span>
-        </button>
-      </div>
+      {/* Phone-only: compact habits (ring + tappable chips) leads the page;
+          the full Habits card below is hidden at phone widths instead. */}
+      <DashboardHabits
+        habits={habits}
+        doneToday={doneToday}
+        todayKey={todayKey}
+        longestStreak={longestStreak}
+        onOpen={() => onNavigate('habits')}
+      />
 
       <div className="dashboard-grid">
         <div className="dashboard-col">
