@@ -2,8 +2,7 @@ import { formatHourLabel, parseDateKey, toDateKey, toMonthKey, toWeekKey } from 
 import { ListCard, ListRow } from '../../components/ListCard.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
 import { useDayInit, useSchedule, useTodos, usePriorities } from '../planner/usePlannerData.js';
-import { useGoogleCalendarConnection } from '../../lib/useGoogleCalendarConnection.js';
-import { useGoogleCalendarEvents, useGoogleCalendarList } from '../../lib/useGoogleCalendarData.js';
+import { useCalendarEvents } from '../calendar/useCalendarData.js';
 import { useAllHabitLogs, useHabits, useTodayLoggedHabitIds } from '../habits/useHabitsData.js';
 import { computeStreak, getLast7Days } from '../habits/streak.js';
 import ProgressRing from '../habits/ProgressRing.jsx';
@@ -30,11 +29,8 @@ export default function DashboardView({ onNavigate }) {
   const { data: weekPriorities = [] } = usePriorities('week', weekKey, true);
   const { data: monthPriorities = [] } = usePriorities('month', monthKey, true);
 
-  // Google Calendar: remaining events today
-  const gcal = useGoogleCalendarConnection();
-  const { data: calendarList } = useGoogleCalendarList(gcal.accessToken, gcal.handleExpired);
-  const calendarIds = calendarList?.map((c) => c.id);
-  const { data: gcalEvents } = useGoogleCalendarEvents(todayKey, gcal.accessToken, calendarIds, gcal.handleExpired);
+  // Google Calendar (synced mirror): remaining events today
+  const { data: gcalEvents } = useCalendarEvents(todayKey);
   const remainingTimedEvents = (gcalEvents?.timed || []).filter((e) => e.end > now);
   const allDayEvents = gcalEvents?.allDay || [];
 

@@ -1,12 +1,21 @@
 import { useAuth } from '../auth/useAuth.js';
 import { supabase } from '../lib/supabaseClient.js';
-import { useGoogleCalendarConnection } from '../lib/useGoogleCalendarConnection.js';
+import { formatRelativeTime } from '../lib/dateUtils.js';
+import { useCalendarSyncStatus, useSyncCalendar } from '../features/calendar/useCalendarData.js';
 import './SettingsView.css';
 
 export default function SettingsView({ onClose }) {
   const { session } = useAuth();
-  const gcal = useGoogleCalendarConnection();
-  const isConnected = gcal.connected && gcal.accessToken;
+  const { data: syncStatus, isError: syncStatusUnavailable } = useCalendarSyncStatus();
+  const sync = useSyncCalendar();
+
+  const syncLabel = syncStatusUnavailable
+    ? 'Sync status unavailable'
+    : syncStatus === undefined
+      ? '…'
+      : syncStatus.lastSyncedAt
+        ? `📅 Synced ${formatRelativeTime(syncStatus.lastSyncedAt)}`
+        : 'Not synced yet';
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -31,20 +40,16 @@ export default function SettingsView({ onClose }) {
         <div className="settings-row">
           <span className="text-muted">Google Calendar</span>
           <div className="settings-gcal-row">
-            <span className={isConnected ? 'settings-gcal-status' : 'settings-gcal-status text-muted'}>
-              {isConnected ? '📅 Connected' : 'Not connected'}
+            <span className={syncStatus?.lastSyncedAt ? 'settings-gcal-status' : 'settings-gcal-status text-muted'}>
+              {syncLabel}
             </span>
-            {isConnected ? (
-              <button className="btn btn-secondary" onClick={gcal.disconnect}>
-                Disconnect
-              </button>
-            ) : (
-              <button className="btn btn-primary" onClick={gcal.connect} disabled={gcal.status === 'connecting'}>
-                {gcal.status === 'connecting' ? 'Connecting…' : 'Connect'}
-              </button>
-            )}
+            <button className="btn btn-secondary" onClick={() => sync.mutate()} disabled={sync.isPending}>
+              {sync.isPending ? 'Syncing…' : 'Sync now'}
+            </button>
           </div>
-          {gcal.status === 'error' && <span className="settings-gcal-error">{gcal.errorMessage}</span>}
+          <span className="text-muted settings-gcal-hint">
+            Syncs automatically every day. Only calendars ticked in Google Calendar's sidebar are included.
+          </span>
         </div>
 
         <button className="btn btn-secondary settings-signout" onClick={handleSignOut}>

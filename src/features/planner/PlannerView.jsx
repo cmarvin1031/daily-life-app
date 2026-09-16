@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { toDateKey, toWeekKey, toMonthKey } from '../../lib/dateUtils.js';
 import DateNav from '../../components/DateNav.jsx';
 import { useDayInit } from './usePlannerData.js';
-import { useGoogleCalendarConnection } from '../../lib/useGoogleCalendarConnection.js';
-import { useGoogleCalendarEvents, useGoogleCalendarList } from '../../lib/useGoogleCalendarData.js';
+import { useCalendarEvents } from '../calendar/useCalendarData.js';
 import AllDayEvents from './AllDayEvents.jsx';
 import ScheduleGrid from './ScheduleGrid.jsx';
 import TodoList from './TodoList.jsx';
@@ -20,16 +19,13 @@ export default function PlannerView() {
   const dayInit = useDayInit(dateKey);
   const dayReady = dayInit.isSuccess;
 
-  const gcal = useGoogleCalendarConnection();
-  const { data: calendarList } = useGoogleCalendarList(gcal.accessToken, gcal.handleExpired);
-  const calendarIds = calendarList?.map((c) => c.id);
-  const { data: gcalEvents } = useGoogleCalendarEvents(dateKey, gcal.accessToken, calendarIds, gcal.handleExpired);
+  const { data: calendarEvents } = useCalendarEvents(dateKey);
 
   return (
     <div className="planner-view">
       <DateNav currentDate={currentDate} onChange={setCurrentDate} />
 
-      <AllDayEvents events={gcalEvents?.allDay} />
+      <AllDayEvents events={calendarEvents?.allDay} />
 
       <div className="planner-grid">
         <div className="card planner-schedule-card">
@@ -37,7 +33,7 @@ export default function PlannerView() {
           {/* Keyed by date so each day gets a fresh grid: switching days
               unmounts the old one, which flushes any unsaved typing to the
               day it belonged to. */}
-          <ScheduleGrid key={dateKey} dateKey={dateKey} enabled={dayReady} googleEvents={gcalEvents?.timed || []} />
+          <ScheduleGrid key={dateKey} dateKey={dateKey} enabled={dayReady} googleEvents={calendarEvents?.timed || []} />
         </div>
 
         <div className="planner-side">

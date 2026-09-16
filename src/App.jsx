@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './auth/AuthProvider.jsx';
 import { useAuth } from './auth/useAuth.js';
-import { GoogleCalendarProvider } from './lib/GoogleCalendarProvider.jsx';
 import { friendlyErrorMessage, showToast } from './lib/toastStore.js';
 import SignInView from './auth/SignInView.jsx';
 import UpdatePasswordView from './auth/UpdatePasswordView.jsx';
@@ -54,11 +53,9 @@ function Gate() {
   const ActiveView = VIEWS[tab];
 
   return (
-    <GoogleCalendarProvider>
-      <AppShell activeTab={tab} onSelectTab={setTab}>
-        <ActiveView onNavigate={setTab} />
-      </AppShell>
-    </GoogleCalendarProvider>
+    <AppShell activeTab={tab} onSelectTab={setTab}>
+      <ActiveView onNavigate={setTab} />
+    </AppShell>
   );
 }
 

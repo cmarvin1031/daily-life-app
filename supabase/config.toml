@@ -1,0 +1,8 @@
+# Minimal Supabase CLI config -- only what `supabase functions deploy` needs.
+# The project is linked with `npx supabase link --project-ref <ref>`.
+project_id = "daily-life-app"
+
+[functions.sync-google-calendar]
+# The function does its own auth (shared secret for cron, or the signed-in
+# user's JWT for the Settings button), so the gateway's JWT check is off.
+verify_jwt = false

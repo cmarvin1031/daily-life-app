@@ -173,3 +173,39 @@ begin
     );
   end loop;
 end $$;
+
+-- ─────────────────────────────────────────────────────────────────────────
+-- Google Calendar mirror
+-- ─────────────────────────────────────────────────────────────────────────
+-- Filled by the sync-google-calendar Edge Function (running as the service
+-- role) on a schedule and on demand from Settings; the app itself only ever
+-- reads it. Deliberately NOT part of the RLS loop above: users get a
+-- select-only policy and there is no insert/update/delete policy at all, so
+-- nothing the browser holds can write here. Setup: README.md, "Google
+-- Calendar sync"; the cron job lives in supabase/calendar_sync_cron.sql.
+
+create table public.calendar_events (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  calendar_id text not null,
+  calendar_name text not null default '',
+  google_event_id text not null,
+  title text not null default '',
+  all_day boolean not null default false,
+  start_at timestamptz,   -- timed events
+  end_at timestamptz,
+  start_date date,        -- all-day events; end_date is exclusive, as Google reports it
+  end_date date,
+  synced_at timestamptz not null default now(),
+  unique (user_id, calendar_id, google_event_id),
+  check (
+    (all_day and start_date is not null and end_date is not null)
+    or (not all_day and start_at is not null and end_at is not null)
+  )
+);
+create index calendar_events_user_start_idx on public.calendar_events (user_id, start_at);
+create index calendar_events_user_dates_idx on public.calendar_events (user_id, start_date, end_date);
+
+alter table public.calendar_events enable row level security;
+create policy "read own events" on public.calendar_events
+  for select using (auth.uid() = user_id);
