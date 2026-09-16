@@ -111,6 +111,12 @@
   }
 
   .list-row {
-    padding: 6px 0;
+    padding: 5px 0;
+  }
+
+  /* Keep the clickable row's inner padding in step with its negative
+     margin, or its text drifts left of the card gutter. */
+  .list-row--clickable {
+    padding: 5px 8px;
   }
 }
