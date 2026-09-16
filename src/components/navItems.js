@@ -1,8 +1,10 @@
+// `label` is used in the desktop sidebar; `shortLabel` (when present) in the
+// phone tab bar, where six items share ~360px.
 export const NAV_ITEMS = [
-  { key: 'dashboard', label: 'Dashboard', icon: '▦' },
-  { key: 'planner', label: 'Planner', icon: '\u{1F4C5}' },
-  { key: 'habits', label: 'Habits', icon: '✅' },
-  { key: 'journal', label: 'Journal', icon: '\u{1F4D3}' },
-  { key: 'goals', label: 'Goals', icon: '\u{1F3AF}' },
-  { key: 'notes', label: 'Notes', icon: '\u{1F5D2}\u{FE0F}' },
+  { key: 'dashboard', label: 'Dashboard', shortLabel: 'Home' },
+  { key: 'planner', label: 'Planner' },
+  { key: 'habits', label: 'Habits' },
+  { key: 'journal', label: 'Journal' },
+  { key: 'goals', label: 'Goals' },
+  { key: 'notes', label: 'Notes' },
 ];

@@ -99,6 +99,14 @@ a {
   padding: 20px;
 }
 
+@media (max-width: 900px) {
+  /* Phones: tighter cards so more fits on one screen. */
+  .card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+}
+
 .card--dark {
   background: linear-gradient(155deg, var(--accent-dark) 0%, var(--accent-dark-2) 100%);
   color: #ffffff;

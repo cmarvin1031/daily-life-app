@@ -1,4 +1,5 @@
 import { NAV_ITEMS } from './navItems.js';
+import NavIcon from './NavIcon.jsx';
 import './SidebarNav.css';
 
 export default function SidebarNav({ activeTab, onSelectTab, onOpenSettings }) {
@@ -17,7 +18,9 @@ export default function SidebarNav({ activeTab, onSelectTab, onOpenSettings }) {
             className={`sidebar-item${activeTab === item.key ? ' active' : ''}`}
             onClick={() => onSelectTab(item.key)}
           >
-            <span className="sidebar-item-icon">{item.icon}</span>
+            <span className="sidebar-item-icon">
+              <NavIcon name={item.key} size={18} />
+            </span>
             <span>{item.label}</span>
           </button>
         ))}
@@ -26,7 +29,9 @@ export default function SidebarNav({ activeTab, onSelectTab, onOpenSettings }) {
       <div className="sidebar-section-label">General</div>
       <nav className="sidebar-items">
         <button className="sidebar-item" onClick={onOpenSettings}>
-          <span className="sidebar-item-icon">⚙️</span>
+          <span className="sidebar-item-icon">
+            <NavIcon name="settings" size={18} />
+          </span>
           <span>Settings</span>
         </button>
       </nav>

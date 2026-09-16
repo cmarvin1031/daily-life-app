@@ -70,10 +70,35 @@ export default function DashboardView({ onNavigate }) {
   const checklistGoalIds = activeGoals.filter((g) => g.goal_type !== 'counter').map((g) => g.id);
   const { data: taskCounts = {} } = useGoalTaskCounts(checklistGoalIds);
 
+  const eventsLeft = allDayEvents.length + timedItems.length;
+
   return (
     <div className="dashboard-view">
-      <h1>Dashboard</h1>
-      <p className="text-muted dashboard-subtitle">Plan, prioritize, and accomplish your day with ease.</p>
+      {/* Desktop header only: on phones the top bar carries the date and
+          greeting instead, so the first screen goes straight to content. */}
+      <div className="dashboard-header">
+        <h1>Dashboard</h1>
+        <p className="text-muted dashboard-subtitle">Plan, prioritize, and accomplish your day with ease.</p>
+      </div>
+
+      {/* Phone-only at-a-glance strip; each tile jumps to its section. */}
+      <div className="dashboard-stats">
+        <button className="dashboard-stat" onClick={() => onNavigate('planner')}>
+          <span className="dashboard-stat-value">{eventsLeft}</span>
+          <span className="text-muted dashboard-stat-label">{eventsLeft === 1 ? 'event left' : 'events left'}</span>
+        </button>
+        <button className="dashboard-stat" onClick={() => onNavigate('planner')}>
+          <span className="dashboard-stat-value">{todosRemaining.length}</span>
+          <span className="text-muted dashboard-stat-label">{todosRemaining.length === 1 ? 'to-do left' : 'to-dos left'}</span>
+        </button>
+        <button className="dashboard-stat" onClick={() => onNavigate('habits')}>
+          <span className="dashboard-stat-value">
+            {habitsDoneToday}
+            <span className="dashboard-stat-of">/{habits.length}</span>
+          </span>
+          <span className="text-muted dashboard-stat-label">habits done</span>
+        </button>
+      </div>
 
       <div className="dashboard-grid">
         <div className="dashboard-col">

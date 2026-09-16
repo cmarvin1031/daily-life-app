@@ -4,8 +4,55 @@
   gap: 20px;
 }
 
-.dashboard-subtitle {
-  margin-top: -12px;
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* At-a-glance tiles: phone only (desktop has the room to show the full
+   cards side by side, so the strip would just repeat them). */
+.dashboard-stats {
+  display: none;
+}
+
+.dashboard-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-stat:active {
+  transform: scale(0.98);
+}
+
+.dashboard-stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-stat-of {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.dashboard-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .dashboard-grid {
@@ -378,7 +425,31 @@
 }
 
 @media (max-width: 900px) {
-  .dashboard-grid {
+  .dashboard-view {
+    gap: 12px;
+  }
+
+  .dashboard-header {
+    display: none; /* the top bar carries date + greeting on phones */
+  }
+
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .dashboard-grid,
+  .dashboard-col {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .dashboard-habits-top {
+    margin-bottom: 12px;
+  }
+
+  .dashboard-card-header {
+    margin-bottom: 10px;
   }
 }
