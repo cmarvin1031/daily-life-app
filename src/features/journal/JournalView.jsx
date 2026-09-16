@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { toDateKey } from '../../lib/dateUtils.js';
+import { useDebouncedActions } from '../../lib/useDebouncedActions.js';
 import DateNav from '../../components/DateNav.jsx';
 import { useJournalEntry, useSaveJournalEntry } from './useJournalData.js';
 import './JournalView.css';
@@ -14,7 +15,8 @@ export default function JournalView() {
     <div className="journal-view">
       <DateNav currentDate={currentDate} onChange={setCurrentDate} />
       {/* Keyed by date so switching days remounts with fresh local state
-          instead of needing an effect to reset it. */}
+          instead of needing an effect to reset it. Unmounting also flushes
+          any pending save for the day being left. */}
       <JournalEditor key={dateKey} dateKey={dateKey} />
     </div>
   );
@@ -22,12 +24,12 @@ export default function JournalView() {
 
 function JournalEditor({ dateKey }) {
   const { data: entry, isLoading } = useJournalEntry(dateKey);
-  const save = useSaveJournalEntry(dateKey);
+  const save = useSaveJournalEntry();
+  const { schedule: queueSave } = useDebouncedActions(SAVE_DELAY_MS);
 
   const [body, setBody] = useState('');
   const [status, setStatus] = useState('idle'); // idle | pending | saving | saved
   const loadedRef = useRef(false);
-  const timerRef = useRef(null);
 
   useEffect(() => {
     if (entry !== undefined && !loadedRef.current) {
@@ -36,20 +38,20 @@ function JournalEditor({ dateKey }) {
     }
   }, [entry]);
 
-  useEffect(() => () => clearTimeout(timerRef.current), []);
-
   function handleChange(e) {
     const value = e.target.value;
     setBody(value);
     setStatus('pending');
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
+    queueSave('body', () => {
       setStatus('saving');
-      save.mutate(value, {
-        onSuccess: () => setStatus('saved'),
-        onError: () => setStatus('idle'),
-      });
-    }, SAVE_DELAY_MS);
+      save.mutate(
+        { dateKey, body: value },
+        {
+          onSuccess: () => setStatus('saved'),
+          onError: () => setStatus('idle'),
+        },
+      );
+    });
   }
 
   return (

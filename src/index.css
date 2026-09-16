@@ -55,6 +55,20 @@ body {
   font-weight: 600;
 }
 
+.app-error {
+  padding: 24px;
+}
+
+.app-error-card {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+  font-weight: 400;
+}
+
 h1,
 h2,
 h3,

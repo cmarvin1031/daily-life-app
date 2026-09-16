@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import ExpandToggle from '../../components/ExpandToggle.jsx';
 import EditableList from '../../components/EditableList.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
 import { parseDateKey } from '../../lib/dateUtils.js';
+import { useDebouncedActions } from '../../lib/useDebouncedActions.js';
 import { useGoalMutations, useGoalTaskMutations, useGoalTasks } from './useGoalsData.js';
 import './GoalCard.css';
 
@@ -221,22 +222,20 @@ function CounterProgress({ current, target, onSetCurrent }) {
 function DescriptionField({ goalId, initialValue, update }) {
   const [value, setValue] = useState(initialValue || '');
   const [status, setStatus] = useState('idle');
-  const timerRef = useRef(null);
-
-  useEffect(() => () => clearTimeout(timerRef.current), []);
+  // Flushes (not drops) a pending save if the card is collapsed mid-typing.
+  const { schedule: queueSave } = useDebouncedActions(SAVE_DELAY_MS);
 
   function handleChange(e) {
     const v = e.target.value;
     setValue(v);
     setStatus('pending');
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
+    queueSave('description', () => {
       setStatus('saving');
       update.mutate(
         { id: goalId, fields: { description: v } },
         { onSuccess: () => setStatus('saved'), onError: () => setStatus('idle') },
       );
-    }, SAVE_DELAY_MS);
+    });
   }
 
   return (

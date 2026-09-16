@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabaseClient.js';
+import { fetchAllRows, supabase } from '../../lib/supabaseClient.js';
 
 export async function getHabits({ archived = false } = {}) {
   const { data, error } = await supabase
@@ -35,23 +35,31 @@ export async function deleteHabitPermanently(id) {
   if (error) throw error;
 }
 
-// Every logged date for a habit, all-time — small enough for a personal
-// single-user habit tracker to fetch in one shot (feeds both streak calc
-// and the month history grid).
+// Every logged date for a habit, all-time (feeds both the streak calc and
+// the month history grid). Paged: a daily habit crosses Supabase's 1000-row
+// response cap after ~2.7 years, and a truncated history would silently
+// break streaks.
 export async function getHabitLogDates(habitId) {
-  const { data, error } = await supabase.from('habit_logs').select('date').eq('habit_id', habitId);
-  if (error) throw error;
-  return data.map((row) => row.date);
+  const rows = await fetchAllRows(() =>
+    supabase.from('habit_logs').select('date').eq('habit_id', habitId).order('date', { ascending: false }),
+  );
+  return rows.map((row) => row.date);
 }
 
-// All log dates for every active habit, grouped by habit_id in one query --
-// feeds the Dashboard's longest-streak stat and weekly chart without an
-// N+1 query per habit.
+// All log dates for every habit, grouped by habit_id -- feeds the
+// Dashboard's longest-streak stat and weekly chart without an N+1 query per
+// habit. Paged for the same reason as above, and this one hits the cap much
+// sooner (5 daily habits = ~7 months).
 export async function getAllHabitLogsByHabit() {
-  const { data, error } = await supabase.from('habit_logs').select('habit_id, date');
-  if (error) throw error;
+  const rows = await fetchAllRows(() =>
+    supabase
+      .from('habit_logs')
+      .select('habit_id, date')
+      .order('date', { ascending: false })
+      .order('habit_id', { ascending: true }),
+  );
   const byHabit = {};
-  for (const row of data) {
+  for (const row of rows) {
     if (!byHabit[row.habit_id]) byHabit[row.habit_id] = [];
     byHabit[row.habit_id].push(row.date);
   }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { SCHEDULE_HOURS, formatHourLabel } from '../../lib/dateUtils.js';
+import { useDebouncedActions } from '../../lib/useDebouncedActions.js';
 import { useSchedule, useSetScheduleHour } from './usePlannerData.js';
 import './ScheduleGrid.css';
 
@@ -9,32 +10,27 @@ function formatEventTime(date) {
   return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
 
+// Mounted once per date (the parent keys it by dateKey), so local state is
+// always for exactly one day.
 export default function ScheduleGrid({ dateKey, enabled, googleEvents = [] }) {
   const { data: schedule } = useSchedule(dateKey, enabled);
-  const setHour = useSetScheduleHour(dateKey);
+  const setHour = useSetScheduleHour();
+  const { schedule: queueSave } = useDebouncedActions(SAVE_DELAY_MS);
 
   const [localValues, setLocalValues] = useState({});
-  const loadedDateRef = useRef(null);
-  const timersRef = useRef({});
+  const loadedRef = useRef(false);
 
   useEffect(() => {
-    if (schedule && loadedDateRef.current !== dateKey) {
-      setLocalValues(schedule);
-      loadedDateRef.current = dateKey;
+    if (schedule && !loadedRef.current) {
+      // Anything typed before the fetch landed wins over the server copy.
+      setLocalValues((typed) => ({ ...schedule, ...typed }));
+      loadedRef.current = true;
     }
-  }, [schedule, dateKey]);
-
-  useEffect(() => {
-    const timers = timersRef.current;
-    return () => Object.values(timers).forEach(clearTimeout);
-  }, []);
+  }, [schedule]);
 
   function handleChange(hour, text) {
     setLocalValues((prev) => ({ ...prev, [hour]: text }));
-    clearTimeout(timersRef.current[hour]);
-    timersRef.current[hour] = setTimeout(() => {
-      setHour.mutate({ hour, text });
-    }, SAVE_DELAY_MS);
+    queueSave(hour, () => setHour.mutate({ dateKey, hour, text }));
   }
 
   return (

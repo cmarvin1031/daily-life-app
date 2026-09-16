@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { optimistic, patchById, removeById, withPositions } from '../../lib/optimistic.js';
 import * as api from './plannerApi.js';
 
 // Ensures the day is initialized (and rolled over from the prior day, if
@@ -24,11 +25,14 @@ export function useSchedule(dateKey, enabled) {
   });
 }
 
-export function useSetScheduleHour(dateKey) {
+// dateKey travels with each call rather than being bound to the hook, so a
+// debounced save queued for one day can never land on another one after
+// the user has navigated away.
+export function useSetScheduleHour() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ hour, text }) => api.setScheduleHour(dateKey, hour, text),
-    onSuccess: (_data, { hour, text }) => {
+    mutationFn: ({ dateKey, hour, text }) => api.setScheduleHour(dateKey, hour, text),
+    onSuccess: (_data, { dateKey, hour, text }) => {
       queryClient.setQueryData(['schedule', dateKey], (prev) => ({ ...(prev || {}), [hour]: text }));
     },
   });
@@ -42,15 +46,28 @@ export function useTodos(dateKey, enabled) {
   });
 }
 
+// Checks, edits, deletes and reorders apply to the list instantly and roll
+// back if the server rejects them; adds still wait for the server since the
+// new row's id is needed for anything else to happen to it.
 export function useTodoMutations(dateKey) {
   const queryClient = useQueryClient();
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['todos', dateKey] });
+  const key = ['todos', dateKey];
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: key });
 
   return {
     add: useMutation({ mutationFn: ({ text, position }) => api.addTodo(dateKey, text, position), onSuccess: invalidate }),
-    update: useMutation({ mutationFn: ({ id, fields }) => api.updateTodo(id, fields), onSuccess: invalidate }),
-    remove: useMutation({ mutationFn: (id) => api.deleteTodo(id), onSuccess: invalidate }),
-    reorder: useMutation({ mutationFn: (orderedItems) => api.reorderTodos(orderedItems), onSuccess: invalidate }),
+    update: useMutation({
+      mutationFn: ({ id, fields }) => api.updateTodo(id, fields),
+      ...optimistic(queryClient, ({ id, fields }) => [{ key, apply: patchById(id, fields) }], invalidate),
+    }),
+    remove: useMutation({
+      mutationFn: (id) => api.deleteTodo(id),
+      ...optimistic(queryClient, (id) => [{ key, apply: removeById(id) }], invalidate),
+    }),
+    reorder: useMutation({
+      mutationFn: (orderedItems) => api.reorderTodos(orderedItems),
+      ...optimistic(queryClient, (orderedItems) => [{ key, apply: withPositions(orderedItems) }], invalidate),
+    }),
   };
 }
 
@@ -64,15 +81,25 @@ export function usePriorities(scope, periodKey, enabled) {
 
 export function usePriorityMutations(scope, periodKey) {
   const queryClient = useQueryClient();
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['priorities', scope, periodKey] });
+  const key = ['priorities', scope, periodKey];
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: key });
 
   return {
     add: useMutation({
       mutationFn: ({ text, position }) => api.addPriority(scope, periodKey, text, position),
       onSuccess: invalidate,
     }),
-    update: useMutation({ mutationFn: ({ id, fields }) => api.updatePriority(id, fields), onSuccess: invalidate }),
-    remove: useMutation({ mutationFn: (id) => api.deletePriority(id), onSuccess: invalidate }),
-    reorder: useMutation({ mutationFn: (orderedItems) => api.reorderPriorities(orderedItems), onSuccess: invalidate }),
+    update: useMutation({
+      mutationFn: ({ id, fields }) => api.updatePriority(id, fields),
+      ...optimistic(queryClient, ({ id, fields }) => [{ key, apply: patchById(id, fields) }], invalidate),
+    }),
+    remove: useMutation({
+      mutationFn: (id) => api.deletePriority(id),
+      ...optimistic(queryClient, (id) => [{ key, apply: removeById(id) }], invalidate),
+    }),
+    reorder: useMutation({
+      mutationFn: (orderedItems) => api.reorderPriorities(orderedItems),
+      ...optimistic(queryClient, (orderedItems) => [{ key, apply: withPositions(orderedItems) }], invalidate),
+    }),
   };
 }

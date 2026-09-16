@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { optimistic, patchById, removeById, withPositions } from '../../lib/optimistic.js';
 import * as api from './goalsApi.js';
 
 export function useGoals(statuses, options = {}) {
@@ -43,8 +44,9 @@ export function useGoalTasks(goalId, enabled = true) {
 
 export function useGoalTaskMutations(goalId) {
   const queryClient = useQueryClient();
+  const key = ['goalTasks', goalId];
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: ['goalTasks', goalId] });
+    queryClient.invalidateQueries({ queryKey: key });
     queryClient.invalidateQueries({ queryKey: ['goalTaskCounts'] });
   };
 
@@ -53,8 +55,17 @@ export function useGoalTaskMutations(goalId) {
       mutationFn: ({ text, position }) => api.addGoalTask(goalId, text, position),
       onSuccess: invalidate,
     }),
-    update: useMutation({ mutationFn: ({ id, fields }) => api.updateGoalTask(id, fields), onSuccess: invalidate }),
-    remove: useMutation({ mutationFn: (id) => api.deleteGoalTask(id), onSuccess: invalidate }),
-    reorder: useMutation({ mutationFn: (orderedItems) => api.reorderGoalTasks(orderedItems), onSuccess: invalidate }),
+    update: useMutation({
+      mutationFn: ({ id, fields }) => api.updateGoalTask(id, fields),
+      ...optimistic(queryClient, ({ id, fields }) => [{ key, apply: patchById(id, fields) }], invalidate),
+    }),
+    remove: useMutation({
+      mutationFn: (id) => api.deleteGoalTask(id),
+      ...optimistic(queryClient, (id) => [{ key, apply: removeById(id) }], invalidate),
+    }),
+    reorder: useMutation({
+      mutationFn: (orderedItems) => api.reorderGoalTasks(orderedItems),
+      ...optimistic(queryClient, (orderedItems) => [{ key, apply: withPositions(orderedItems) }], invalidate),
+    }),
   };
 }

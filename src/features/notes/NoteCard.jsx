@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import ExpandToggle from '../../components/ExpandToggle.jsx';
+import { useDebouncedActions } from '../../lib/useDebouncedActions.js';
 
 const SAVE_DELAY_MS = 800;
 
@@ -8,9 +9,8 @@ export default function NoteCard({ note, update, onDelete }) {
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
   const [status, setStatus] = useState('idle');
-  const timerRef = useRef(null);
-
-  useEffect(() => () => clearTimeout(timerRef.current), []);
+  // Flushes (not drops) a pending save if the page is collapsed mid-typing.
+  const { schedule: queueSave } = useDebouncedActions(SAVE_DELAY_MS);
 
   function commitTitle() {
     const trimmed = title.trim();
@@ -21,14 +21,13 @@ export default function NoteCard({ note, update, onDelete }) {
     const v = e.target.value;
     setBody(v);
     setStatus('pending');
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
+    queueSave('body', () => {
       setStatus('saving');
       update.mutate(
         { id: note.id, fields: { body: v } },
         { onSuccess: () => setStatus('saved'), onError: () => setStatus('idle') },
       );
-    }, SAVE_DELAY_MS);
+    });
   }
 
   return (

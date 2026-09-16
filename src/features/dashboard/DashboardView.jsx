@@ -1,7 +1,7 @@
 import { formatHourLabel, parseDateKey, toDateKey, toMonthKey, toWeekKey } from '../../lib/dateUtils.js';
 import { ListCard, ListRow } from '../../components/ListCard.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
-import { useSchedule, useTodos, usePriorities } from '../planner/usePlannerData.js';
+import { useDayInit, useSchedule, useTodos, usePriorities } from '../planner/usePlannerData.js';
 import { useGoogleCalendarConnection } from '../../lib/useGoogleCalendarConnection.js';
 import { useGoogleCalendarEvents, useGoogleCalendarList } from '../../lib/useGoogleCalendarData.js';
 import { useAllHabitLogs, useHabits, useTodayLoggedHabitIds } from '../habits/useHabitsData.js';
@@ -18,8 +18,14 @@ export default function DashboardView({ onNavigate }) {
   const weekKey = toWeekKey(now);
   const monthKey = toMonthKey(now);
 
+  // Dashboard is the landing tab, so it has to trigger today's rollover
+  // itself -- otherwise the first open of the day shows an empty to-do list
+  // until the user happens to visit Planner.
+  const dayInit = useDayInit(todayKey);
+  const dayReady = dayInit.isSuccess;
+
   // Planner: to-dos + priorities
-  const { data: todos = [] } = useTodos(todayKey, true);
+  const { data: todos = [] } = useTodos(todayKey, dayReady);
   const todosRemaining = todos.filter((t) => !t.done);
   const { data: weekPriorities = [] } = usePriorities('week', weekKey, true);
   const { data: monthPriorities = [] } = usePriorities('month', monthKey, true);
@@ -33,7 +39,7 @@ export default function DashboardView({ onNavigate }) {
   const allDayEvents = gcalEvents?.allDay || [];
 
   // Planner: today's manually-typed schedule entries, remaining hours only
-  const { data: schedule = {} } = useSchedule(todayKey, true);
+  const { data: schedule = {} } = useSchedule(todayKey, dayReady);
   const currentHour = now.getHours();
   const scheduleItems = Object.entries(schedule)
     .filter(([hour, text]) => text.trim() && Number(hour) >= currentHour)

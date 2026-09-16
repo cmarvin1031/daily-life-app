@@ -30,8 +30,16 @@ Requires a Supabase project — see below — with `.env.local` filled in.
    VITE_SUPABASE_ANON_KEY=eyJ...
    ```
 
-5. Sign-up is open in the app (no invite system) — create your one account
-   from the sign-in screen the first time you run the app.
+5. Create your one account from the Supabase dashboard: **Authentication →
+   Users → Add user** (tick "Auto Confirm User"). There's deliberately no
+   sign-up form in the app.
+6. Lock the project down so the public Pages URL can't be used to create
+   accounts against it: **Authentication → Providers → Email** → turn off
+   **Allow new users to sign up**.
+7. So password-reset emails link back to the app instead of the default
+   `localhost:3000`: **Authentication → URL Configuration** → set **Site
+   URL** to your deployed Pages URL, and add both that URL and
+   `http://localhost:5173` under **Redirect URLs**.
 
 ## Google Calendar setup (optional)
 
@@ -101,8 +109,12 @@ documented in [`supabase/schema.sql`](supabase/schema.sql). Every table
 carries a `user_id` column enforced by Row Level Security, so each signed-in
 user only ever sees their own rows.
 
-## Offline behavior
+## Offline behavior & errors
 
 The app shell (JS/CSS/HTML/icons) is precached and opens instantly offline.
-Supabase reads/writes are **not** cached or queued offline — actions made
-without a connection fail visibly rather than silently queuing.
+While offline, a banner shows at the top, reads show whatever was last
+cached, and writes are paused and replayed once the connection returns —
+but only for as long as the app stays open; a reload while offline drops
+anything still pending. Any read or write that fails for another reason
+(server error, expired session, Google Calendar hiccup) surfaces as a toast
+at the bottom of the screen rather than failing silently.

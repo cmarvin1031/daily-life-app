@@ -34,7 +34,10 @@ export default function PlannerView() {
       <div className="planner-grid">
         <div className="card planner-schedule-card">
           <h3>Schedule</h3>
-          <ScheduleGrid dateKey={dateKey} enabled={dayReady} googleEvents={gcalEvents?.timed || []} />
+          {/* Keyed by date so each day gets a fresh grid: switching days
+              unmounts the old one, which flushes any unsaved typing to the
+              day it belonged to. */}
+          <ScheduleGrid key={dateKey} dateKey={dateKey} enabled={dayReady} googleEvents={gcalEvents?.timed || []} />
         </div>
 
         <div className="planner-side">
