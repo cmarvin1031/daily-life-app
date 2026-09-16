@@ -100,10 +100,15 @@ a {
 }
 
 @media (max-width: 900px) {
-  /* Phones: tighter cards so more fits on one screen. */
+  /* Phones: tighter cards and smaller section titles so more fits on one
+     screen. */
   .card {
-    padding: 16px;
+    padding: 12px 14px;
     border-radius: 16px;
+  }
+
+  h3 {
+    font-size: 15px;
   }
 }
 

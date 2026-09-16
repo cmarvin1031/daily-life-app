@@ -34,38 +34,39 @@ function HabitChip({ habit, done, streak, todayKey }) {
 export default function DashboardHabits({ habits, doneToday, streaks, todayKey, onOpen }) {
   const doneCount = habits.filter((h) => doneToday.has(h.id)).length;
 
+  // The title sits beside the ring, above the chips, rather than on its
+  // own row -- a whole line of vertical space on a phone for one word.
   return (
     <div className="card dashboard-habits-compact">
-      <div className="dashboard-card-header">
-        <button type="button" className="dashboard-habits-compact-title" onClick={onOpen}>
-          Habits <span aria-hidden="true">›</span>
-        </button>
-      </div>
-
-      {habits.length === 0 ? (
-        <p className="text-muted">No habits yet.</p>
-      ) : (
-        <div className="dashboard-habits-compact-body">
-          <ProgressRing
-            value={doneCount}
-            total={habits.length}
-            size={76}
-            strokeWidth={7}
-            centerText={`${doneCount} of ${habits.length}`}
-          />
-          <div className="dashboard-habit-chips">
-            {habits.map((habit) => (
-              <HabitChip
-                key={habit.id}
-                habit={habit}
-                done={doneToday.has(habit.id)}
-                streak={streaks[habit.id] ?? 0}
-                todayKey={todayKey}
-              />
-            ))}
-          </div>
+      <div className="dashboard-habits-compact-body">
+        <ProgressRing
+          value={doneCount}
+          total={habits.length}
+          size={68}
+          strokeWidth={7}
+          centerText={`${doneCount} of ${habits.length}`}
+        />
+        <div className="dashboard-habits-compact-right">
+          <button type="button" className="dashboard-habits-compact-title" onClick={onOpen}>
+            Habits <span aria-hidden="true">›</span>
+          </button>
+          {habits.length === 0 ? (
+            <p className="text-muted dashboard-habits-compact-empty">No habits yet.</p>
+          ) : (
+            <div className="dashboard-habit-chips">
+              {habits.map((habit) => (
+                <HabitChip
+                  key={habit.id}
+                  habit={habit}
+                  done={doneToday.has(habit.id)}
+                  streak={streaks[habit.id] ?? 0}
+                  todayKey={todayKey}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -91,3 +91,26 @@
 .list-row-right {
   flex-shrink: 0;
 }
+
+@media (max-width: 900px) {
+  .list-card {
+    gap: 8px;
+  }
+
+  /* An empty card is just its title plus a note: keep it to one line. */
+  .list-card.is-empty {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .list-card.is-empty .list-card-empty {
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .list-row {
+    padding: 6px 0;
+  }
+}

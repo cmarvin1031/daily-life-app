@@ -36,8 +36,8 @@
     justify-content: space-between;
     gap: 12px;
     /* Sits under the status bar / notch when installed to the home screen. */
-    padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
-    min-height: 56px;
+    padding: calc(8px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 8px max(16px, env(safe-area-inset-left));
+    min-height: 52px;
     background: rgba(255, 255, 255, 0.9);
     -webkit-backdrop-filter: saturate(180%) blur(14px);
     backdrop-filter: saturate(180%) blur(14px);
@@ -82,6 +82,6 @@
   }
 
   .app-shell-content {
-    padding: 14px max(14px, env(safe-area-inset-right)) calc(76px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+    padding: 12px max(12px, env(safe-area-inset-right)) calc(76px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   }
 }

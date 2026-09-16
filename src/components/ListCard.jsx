@@ -1,13 +1,16 @@
 import './ListCard.css';
 
 export function ListCard({ title, action, children, empty }) {
+  const isEmpty = !children;
   return (
-    <div className="card list-card">
+    // `is-empty` lets phones collapse an empty card to a single row
+    // (title on the left, "nothing here" on the right).
+    <div className={isEmpty ? 'card list-card is-empty' : 'card list-card'}>
       <div className="list-card-header">
         <h3>{title}</h3>
         {action}
       </div>
-      {children ? <div className="list-card-body">{children}</div> : <p className="text-muted list-card-empty">{empty || 'Nothing here yet.'}</p>}
+      {isEmpty ? <p className="text-muted list-card-empty">{empty || 'Nothing here yet.'}</p> : <div className="list-card-body">{children}</div>}
     </div>
   );
 }
