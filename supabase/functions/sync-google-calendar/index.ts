@@ -29,15 +29,31 @@ const SYNC_SECRET = Deno.env.get('SYNC_SECRET') ?? '';
 // it disappears here on the next sync). Set to "true" to sync everything.
 const SYNC_ALL_CALENDARS = Deno.env.get('SYNC_ALL_CALENDARS') === 'true';
 
+// Browser origins allowed to call this function (the Settings "Sync now"
+// button). Cron doesn't go through CORS. Override with a comma-separated
+// ALLOWED_ORIGINS secret if the app moves.
+const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') ?? 'https://cmarvin1031.github.io,http://localhost:5173')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 const PAST_DAYS = 30;
 const FUTURE_DAYS = 90;
 const UPSERT_CHUNK = 500;
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-sync-secret',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+// Compact JWT: three base64url segments. Anything else in the Authorization
+// header is rejected before we spend a round-trip asking Supabase Auth.
+const JWT_SHAPE = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
+
+function corsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? '';
+  return {
+    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-sync-secret',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    Vary: 'Origin',
+  };
+}
 
 type GoogleCalendar = { id: string; summary?: string; selected?: boolean };
 type GoogleEvent = {
@@ -61,10 +77,10 @@ type EventRow = {
   synced_at: string;
 };
 
-function json(status: number, body: unknown) {
+function json(req: Request, status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(req) },
   });
 }
 
@@ -74,6 +90,7 @@ async function isAuthorized(req: Request): Promise<boolean> {
 
   const authHeader = req.headers.get('authorization') ?? '';
   if (!authHeader.startsWith('Bearer ')) return false;
+  if (!JWT_SHAPE.test(authHeader.slice('Bearer '.length).trim())) return false;
   const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: { headers: { Authorization: authHeader } },
   });
@@ -155,15 +172,17 @@ function toRow(userId: string, calendar: GoogleCalendar, event: GoogleEvent, syn
 }
 
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
-  if (req.method !== 'POST') return json(405, { error: 'POST only' });
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(req) });
+  if (req.method !== 'POST') return json(req, 405, { error: 'POST only' });
+
+  // Auth first: an unauthenticated caller learns nothing about how this
+  // function is configured, not even which secrets are unset.
+  if (!(await isAuthorized(req))) return json(req, 401, { error: 'Unauthorized' });
 
   const missing = ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_REFRESH_TOKEN', 'SYNC_USER_ID', 'SYNC_SECRET'].filter(
     (name) => !Deno.env.get(name),
   );
-  if (missing.length > 0) return json(500, { error: `Missing function secrets: ${missing.join(', ')}` });
-
-  if (!(await isAuthorized(req))) return json(401, { error: 'Unauthorized' });
+  if (missing.length > 0) return json(req, 500, { error: `Missing function secrets: ${missing.join(', ')}` });
 
   try {
     const syncedAt = new Date().toISOString();
@@ -213,7 +232,7 @@ Deno.serve(async (req) => {
     const { error: deleteError, count: removed } = await removeQuery;
     if (deleteError) throw new Error(`Cleanup failed: ${deleteError.message}`);
 
-    return json(200, {
+    return json(req, 200, {
       ok: true,
       syncedAt,
       calendars: calendars.length - failedCalendars.length,
@@ -223,6 +242,6 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error('Sync failed', err);
-    return json(500, { error: err instanceof Error ? err.message : String(err) });
+    return json(req, 500, { error: err instanceof Error ? err.message : String(err) });
   }
 });

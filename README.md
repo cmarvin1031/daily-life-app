@@ -91,6 +91,14 @@ the longest section here, but each step is small.
    Copy the **Refresh token**. (The access token shown alongside it is
    irrelevant — the function mints its own.)
 
+Alternative without the Playground: add `http://localhost:53682/callback` as
+a redirect URI on the client instead, then run
+`node scripts/get-google-refresh-token.mjs` — it opens the consent screen
+and prints the refresh token in your terminal.
+
+Once you have the token, remove the Playground / localhost redirect URIs
+from the client again; they're only needed for this step.
+
 ### C. Supabase (table, function, secrets, schedule)
 
 1. **SQL Editor**: run the `calendar_events` section at the bottom of
