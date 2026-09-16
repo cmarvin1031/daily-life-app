@@ -246,7 +246,7 @@
 
 .dashboard-todo-row {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 10px;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
@@ -263,12 +263,15 @@
   padding: 8px 8px;
 }
 
+/* Same footprint as the events' dot, hollow and in the planner colour. */
 .dashboard-todo-marker {
   flex-shrink: 0;
-  width: 14px;
-  height: 14px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  border: 1.5px solid #c7ccd4;
+  border: 1.5px solid var(--chip-orange);
+  position: relative;
+  top: -1px;
 }
 
 .dashboard-todo-text {
