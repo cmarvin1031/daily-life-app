@@ -51,6 +51,15 @@ export function useHabitLogMutations(habitId) {
   const plan = (dateKey, logged) => [
     { key: ['habitLog', habitId], apply: logged ? including(dateKey) : without(dateKey) },
     { key: ['habitLogsForDate', dateKey], apply: logged ? including(habitId) : without(habitId) },
+    // Dashboard streaks read from the all-habits map; patch it too so the
+    // 🔥 count under a chip moves on the tap, not after the round-trip.
+    {
+      key: ['allHabitLogs'],
+      apply: (byHabit) => ({
+        ...byHabit,
+        [habitId]: (logged ? including(dateKey) : without(dateKey))(byHabit[habitId] || []),
+      }),
+    },
   ];
 
   return {

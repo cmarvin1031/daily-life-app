@@ -64,7 +64,8 @@ export default function DashboardView({ onNavigate }) {
   const { data: logsByHabit = {} } = useAllHabitLogs();
   const doneToday = new Set(doneTodayIds);
   const habitsDoneToday = habits.filter((h) => doneToday.has(h.id)).length;
-  const longestStreak = habits.reduce((max, h) => Math.max(max, computeStreak(logsByHabit[h.id] || [])), 0);
+  const streaks = Object.fromEntries(habits.map((h) => [h.id, computeStreak(logsByHabit[h.id] || [])]));
+  const longestStreak = Math.max(0, ...Object.values(streaks));
 
   // Goals
   const { data: activeGoals = [] } = useGoals(['active']);
@@ -85,8 +86,8 @@ export default function DashboardView({ onNavigate }) {
       <DashboardHabits
         habits={habits}
         doneToday={doneToday}
+        streaks={streaks}
         todayKey={todayKey}
-        longestStreak={longestStreak}
         onOpen={() => onNavigate('habits')}
       />
 

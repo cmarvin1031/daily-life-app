@@ -53,7 +53,28 @@
   min-width: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px 8px;
+}
+
+.dashboard-habit-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 44px;
+}
+
+.dashboard-habit-item-streak {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.dashboard-habit-item-streak.zero {
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 
 .dashboard-habit-chip {
