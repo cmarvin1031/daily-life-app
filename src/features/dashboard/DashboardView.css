@@ -219,8 +219,10 @@
   background: var(--chip-blue);
 }
 
+/* Planner-typed schedule items and Google events share the same blue dot;
+   distinguishing them by colour just looked like a mistake. */
 .dashboard-event-dot.planner {
-  background: var(--chip-orange);
+  background: var(--chip-blue);
 }
 
 .dashboard-event-dot.allday {
@@ -263,13 +265,13 @@
   padding: 8px 8px;
 }
 
-/* Same footprint and colour as the events' dot, just hollow. */
+/* Same footprint as the events' dot, hollow and in the planner orange. */
 .dashboard-todo-marker {
   flex-shrink: 0;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 1.5px solid var(--chip-blue);
+  border: 1.5px solid var(--chip-orange);
   position: relative;
   top: -1px;
 }
