@@ -583,9 +583,16 @@
     display: none; /* replaced by the compact block above on phones */
   }
 
-  .dashboard-grid,
+  /* minmax(0, …) rather than bare 1fr: a bare 1fr track's minimum is its
+     content's width, which let the column grow past the grid (and the
+     cards past the Habits block above them). */
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
   .dashboard-col {
-    grid-template-columns: 1fr;
+    min-width: 0;
     gap: 10px;
   }
 
