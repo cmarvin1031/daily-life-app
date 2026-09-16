@@ -236,6 +236,50 @@
   white-space: nowrap;
 }
 
+/* To-Do card: same weight and rhythm as the events rows, with a hollow
+   circle standing in for "not done yet". */
+
+.dashboard-todo-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-todo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.dashboard-todo-row:last-child {
+  border-bottom: none;
+}
+
+.dashboard-todo-row:hover {
+  background: var(--bg);
+  margin: 0 -8px;
+  padding: 8px 8px;
+}
+
+.dashboard-todo-marker {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid #c7ccd4;
+}
+
+.dashboard-todo-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Priorities card */
 
 .dashboard-priorities-card h3 {
@@ -576,6 +620,7 @@
   }
 
   .dashboard-event-row,
+  .dashboard-todo-row,
   .dashboard-goal-row {
     padding: 7px 0;
   }

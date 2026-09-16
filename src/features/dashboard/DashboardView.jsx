@@ -1,5 +1,5 @@
 import { formatHourLabel, parseDateKey, toDateKey, toMonthKey, toWeekKey } from '../../lib/dateUtils.js';
-import { ListCard, ListRow } from '../../components/ListCard.jsx';
+import { ListCard } from '../../components/ListCard.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
 import { useDayInit, useSchedule, useTodos, usePriorities } from '../planner/usePlannerData.js';
 import { useCalendarEvents } from '../calendar/useCalendarData.js';
@@ -119,10 +119,16 @@ export default function DashboardView({ onNavigate }) {
           </ListCard>
 
           <ListCard title="To-Do" empty="Nothing left today 🎉">
-            {todosRemaining.length > 0 &&
-              todosRemaining.map((todo) => (
-                <ListRow key={todo.id} title={todo.text} onClick={() => onNavigate('planner')} />
-              ))}
+            {todosRemaining.length > 0 && (
+              <div className="dashboard-todo-list">
+                {todosRemaining.map((todo) => (
+                  <div key={todo.id} className="dashboard-todo-row" onClick={() => onNavigate('planner')}>
+                    <span className="dashboard-todo-marker" aria-hidden="true" />
+                    <span className="dashboard-todo-text">{todo.text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </ListCard>
 
           <div className="card dashboard-priorities-card">
