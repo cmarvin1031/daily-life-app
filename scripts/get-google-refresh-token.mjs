@@ -34,10 +34,12 @@ function askHidden(promptText) {
     stdin.setRawMode(true);
     stdin.resume();
     stdin.setEncoding('utf8');
+    const CTRL_C = String.fromCharCode(3);
+    const DEL = String.fromCharCode(127); // what Backspace sends on most terminals
     let value = '';
     const onData = (chunk) => {
       for (const ch of chunk) {
-        if (ch === '0003') process.exit(1); // Ctrl+C
+        if (ch === CTRL_C) process.exit(1);
         if (ch === '\r' || ch === '\n') {
           stdin.setRawMode(false);
           stdin.pause();
@@ -46,7 +48,7 @@ function askHidden(promptText) {
           resolve(value);
           return;
         }
-        if (ch === '007f' || ch === '\b') value = value.slice(0, -1); // Backspace (DEL on most terminals)
+        if (ch === DEL || ch === '\b') value = value.slice(0, -1);
         else value += ch;
       }
     };
