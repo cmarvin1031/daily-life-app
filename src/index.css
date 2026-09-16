@@ -110,6 +110,14 @@ a {
   h3 {
     font-size: 15px;
   }
+
+  /* iOS Safari zooms the whole page when a field with text under 16px is
+     focused -- and leaves it zoomed. 16px keeps the viewport put. */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 .card--dark {

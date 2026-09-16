@@ -263,13 +263,13 @@
   padding: 8px 8px;
 }
 
-/* Same footprint as the events' dot, hollow and in the planner colour. */
+/* Same footprint and colour as the events' dot, just hollow. */
 .dashboard-todo-marker {
   flex-shrink: 0;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  border: 1.5px solid var(--chip-orange);
+  border: 1.5px solid var(--chip-blue);
   position: relative;
   top: -1px;
 }
