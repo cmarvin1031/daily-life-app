@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { toDateKey, formatDisplayDate } from '../../lib/dateUtils.js';
+import { useNow } from '../../lib/useNow.js';
 import { ListCard } from '../../components/ListCard.jsx';
 import { useHabits, useHabitMutations, useTodayLoggedHabitIds } from './useHabitsData.js';
 import HabitRow from './HabitRow.jsx';
@@ -11,7 +12,8 @@ export default function HabitsView() {
   const [showArchived, setShowArchived] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const todayKey = toDateKey(new Date());
+  const now = useNow();
+  const todayKey = toDateKey(now);
 
   const { data: habits = [] } = useHabits(false);
   const { data: doneTodayIds = [] } = useTodayLoggedHabitIds(todayKey);
@@ -62,7 +64,7 @@ export default function HabitsView() {
             <div className="habits-summary-count">
               {doneCount} of {habits.length} done
             </div>
-            <div className="text-muted habits-summary-date">{formatDisplayDate(new Date())}</div>
+            <div className="text-muted habits-summary-date">{formatDisplayDate(now)}</div>
           </div>
           <ProgressRing value={doneCount} total={habits.length} />
         </div>

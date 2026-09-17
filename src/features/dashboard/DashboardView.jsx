@@ -1,4 +1,5 @@
 import { formatHourLabel, parseDateKey, toDateKey, toMonthKey, toWeekKey } from '../../lib/dateUtils.js';
+import { useNow } from '../../lib/useNow.js';
 import { ListCard } from '../../components/ListCard.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
 import { useDayInit, useSchedule, useTodos, usePriorities } from '../planner/usePlannerData.js';
@@ -13,7 +14,7 @@ import DashboardHabits from './DashboardHabits.jsx';
 import './DashboardView.css';
 
 export default function DashboardView({ onNavigate }) {
-  const now = new Date();
+  const now = useNow();
   const todayKey = toDateKey(now);
   const weekKey = toWeekKey(now);
   const monthKey = toMonthKey(now);

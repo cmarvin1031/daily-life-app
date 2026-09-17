@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useOnline } from '../lib/useOnline.js';
 import { formatDisplayDate } from '../lib/dateUtils.js';
+import { useNow } from '../lib/useNow.js';
 import SidebarNav from './SidebarNav.jsx';
 import TabBar from './TabBar.jsx';
 import SettingsView from './SettingsView.jsx';
@@ -18,7 +19,7 @@ function greetingFor(date) {
 export default function AppShell({ activeTab, onSelectTab, children }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const online = useOnline();
-  const now = new Date();
+  const now = useNow();
 
   return (
     <div className="app-shell">

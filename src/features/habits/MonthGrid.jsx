@@ -1,94 +1,79 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { toDateKey, daysInMonth, formatMonthLabel } from '../../lib/dateUtils.js';
 import './MonthGrid.css';
 
-function SingleMonth({ year, month, loggedDates, onToggleDate }) {
-  const logged = new Set(loggedDates);
+const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+// One month at a time, laid out as a standard Sunday-first calendar, with
+// ‹ › to step back through history. Opens on the current month.
+// loggedDates already holds the habit's full history, so paging needs no
+// extra fetching.
+export default function MonthGrid({ loggedDates, onToggleDate }) {
   const today = new Date();
-  const total = daysInMonth(year, month);
-  const cells = Array.from({ length: total }, (_, i) => i + 1);
+  const todayKey = toDateKey(today);
+  const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
+
+  const logged = new Set(loggedDates);
+  const isCurrentMonth = view.year === today.getFullYear() && view.month === today.getMonth();
+  const total = daysInMonth(view.year, view.month);
+  const leadingBlanks = new Date(view.year, view.month, 1).getDay(); // 0 = Sunday
+
+  function shiftMonth(delta) {
+    setView((v) => {
+      const d = new Date(v.year, v.month + delta, 1);
+      return { year: d.getFullYear(), month: d.getMonth() };
+    });
+  }
 
   return (
     <div className="month-grid-block">
-      <div className="text-muted month-grid-label">{formatMonthLabel(new Date(year, month, 1))}</div>
-      <div className="month-grid">
-        {cells.map((dayNum) => {
-          const d = new Date(year, month, dayNum);
-          const key = toDateKey(d);
+      <div className="month-grid-nav">
+        <button type="button" className="month-grid-nav-btn" onClick={() => shiftMonth(-1)} aria-label="Previous month">
+          ‹
+        </button>
+        <span className="month-grid-label">{formatMonthLabel(new Date(view.year, view.month, 1))}</span>
+        <button
+          type="button"
+          className="month-grid-nav-btn"
+          onClick={() => shiftMonth(1)}
+          disabled={isCurrentMonth}
+          aria-label="Next month"
+        >
+          ›
+        </button>
+      </div>
+
+      <div className="month-grid" role="grid">
+        {WEEKDAYS.map((d, i) => (
+          <span key={i} className="month-weekday" aria-hidden="true">
+            {d}
+          </span>
+        ))}
+        {Array.from({ length: leadingBlanks }, (_, i) => (
+          <span key={`blank-${i}`} className="month-cell empty" aria-hidden="true" />
+        ))}
+        {Array.from({ length: total }, (_, i) => {
+          const dayNum = i + 1;
+          const key = toDateKey(new Date(view.year, view.month, dayNum));
           const done = logged.has(key);
-          const isFuture = d > today;
+          const isFuture = key > todayKey;
+          const isToday = key === todayKey;
           return (
             <button
               key={dayNum}
               type="button"
-              className={`month-cell${done ? ' done' : ''}${isFuture ? ' future' : ''}`}
+              className={`month-cell${done ? ' done' : ''}${isToday ? ' today' : ''}`}
               title={key}
               disabled={isFuture}
               onClick={() => onToggleDate(key, done)}
+              aria-label={`${key}${done ? ', done' : ''}`}
+              aria-pressed={done}
             >
               {dayNum}
             </button>
           );
         })}
       </div>
-    </div>
-  );
-}
-
-// Horizontally scrollable timeline: oldest month on the left, current month
-// on the right. Opens scrolled to the right (current month). loggedDates
-// already holds the habit's full history, so scrolling back needs no extra
-// fetching -- "Load more" just renders more months into the strip.
-export default function MonthGrid({ loggedDates, onToggleDate }) {
-  const [monthsBack, setMonthsBack] = useState(3);
-  const scrollRef = useRef(null);
-  const prevScrollWidthRef = useRef(0);
-  const today = new Date();
-
-  // oldest -> newest, so the current month lands at the right edge.
-  const months = Array.from({ length: monthsBack }, (_, i) => {
-    const offset = monthsBack - 1 - i;
-    const d = new Date(today.getFullYear(), today.getMonth() - offset, 1);
-    return { year: d.getFullYear(), month: d.getMonth() };
-  });
-
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const applyScroll = () => {
-      if (prevScrollWidthRef.current) {
-        // Months were prepended on the left; shift right by the added
-        // width so the months already on screen stay put instead of
-        // jumping.
-        el.scrollLeft += el.scrollWidth - prevScrollWidthRef.current;
-      } else {
-        el.scrollLeft = el.scrollWidth;
-      }
-      prevScrollWidthRef.current = el.scrollWidth;
-    };
-
-    // Run once now, then again after the next paint in case layout
-    // (e.g. web font swap) wasn't fully settled on the first pass.
-    applyScroll();
-    const raf = requestAnimationFrame(applyScroll);
-    return () => cancelAnimationFrame(raf);
-  }, [monthsBack]);
-
-  return (
-    <div className={monthsBack > 3 ? 'month-grid-scroll scrollable' : 'month-grid-scroll'} ref={scrollRef}>
-      <button type="button" className="month-grid-more" onClick={() => setMonthsBack((n) => n + 3)}>
-        ‹ Load more
-      </button>
-      {months.map(({ year, month }) => (
-        <SingleMonth
-          key={`${year}-${month}`}
-          year={year}
-          month={month}
-          loggedDates={loggedDates}
-          onToggleDate={onToggleDate}
-        />
-      ))}
     </div>
   );
 }
