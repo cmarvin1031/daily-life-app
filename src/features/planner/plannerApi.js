@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabaseClient.js';
-import { toDateKey } from '../../lib/dateUtils.js';
+import { toDateKey, toMonthKey, toWeekKey } from '../../lib/dateUtils.js';
 
 // Marks `dateKey` as opened. If this is the first time it's been opened,
 // rolls forward incomplete todos from the most recent prior opened date.
@@ -111,6 +111,86 @@ export async function reorderTodos(orderedItems) {
 }
 
 // ── Priorities ──────────────────────────────────────────────────────────
+
+function currentPeriodKey(scope) {
+  const now = new Date();
+  return scope === 'week' ? toWeekKey(now) : toMonthKey(now);
+}
+
+// Week/month counterpart of ensureDay: the first time a period is opened,
+// the previous period's unfinished priorities are copied forward. Future
+// periods are never initialized (previewing next week must not snapshot
+// this week's leftovers), and items already re-added by hand aren't
+// duplicated. Period keys sort lexically in date order ('2026-W38',
+// '2026-09'), so string comparison is enough.
+export async function ensurePeriod(scope, periodKey) {
+  if (periodKey > currentPeriodKey(scope)) return;
+
+  const { error: insertError } = await supabase.from('period_state').insert({ scope, period_key: periodKey });
+  if (insertError) {
+    if (insertError.code === '23505') return; // already initialized elsewhere
+    if (insertError.code === 'PGRST205') {
+      // period_state table not created yet (migration not run): priorities
+      // still work, they just don't roll forward.
+      console.warn('period_state table missing; skipping priorities rollover');
+      return;
+    }
+    throw insertError;
+  }
+
+  // Roll from the most recent earlier period that was opened -- or, before
+  // any period_state rows existed, the most recent earlier one that has
+  // priorities at all.
+  let priorKey = null;
+  const { data: priorState, error: priorError } = await supabase
+    .from('period_state')
+    .select('period_key')
+    .eq('scope', scope)
+    .lt('period_key', periodKey)
+    .order('period_key', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (priorError) throw priorError;
+  if (priorState) {
+    priorKey = priorState.period_key;
+  } else {
+    const { data: priorItem, error: itemError } = await supabase
+      .from('priorities')
+      .select('period_key')
+      .eq('scope', scope)
+      .lt('period_key', periodKey)
+      .order('period_key', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (itemError) throw itemError;
+    if (priorItem) priorKey = priorItem.period_key;
+  }
+  if (!priorKey) return;
+
+  const [priorRes, existingRes] = await Promise.all([
+    supabase
+      .from('priorities')
+      .select('text, position')
+      .eq('scope', scope)
+      .eq('period_key', priorKey)
+      .eq('done', false)
+      .order('position', { ascending: true }),
+    supabase.from('priorities').select('text, position').eq('scope', scope).eq('period_key', periodKey),
+  ]);
+  if (priorRes.error) throw priorRes.error;
+  if (existingRes.error) throw existingRes.error;
+
+  const existing = existingRes.data;
+  const already = new Set(existing.map((p) => p.text.trim().toLowerCase()));
+  const start = existing.length ? Math.max(...existing.map((p) => p.position)) + 1 : 0;
+  const rows = priorRes.data
+    .filter((p) => !already.has(p.text.trim().toLowerCase()))
+    .map((p, i) => ({ scope, period_key: periodKey, text: p.text, position: start + i }));
+  if (rows.length === 0) return;
+
+  const { error: rollError } = await supabase.from('priorities').insert(rows);
+  if (rollError) throw rollError;
+}
 
 export async function getPriorities(scope, periodKey) {
   const { data, error } = await supabase

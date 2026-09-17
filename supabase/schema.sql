@@ -49,6 +49,16 @@ create table public.priorities (
 );
 create index priorities_user_period_idx on public.priorities (user_id, period_key);
 
+-- Marks that a week/month has been opened, so the priorities rollover
+-- (copy forward the previous period's unfinished ones) runs once per period.
+create table public.period_state (
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  scope text not null check (scope in ('week', 'month')),
+  period_key text not null, -- e.g. '2026-W38' or '2026-09'
+  created_at timestamptz not null default now(),
+  primary key (user_id, scope, period_key)
+);
+
 -- ─────────────────────────────────────────────────────────────────────────
 -- Habits module
 -- ─────────────────────────────────────────────────────────────────────────
@@ -192,7 +202,7 @@ declare
 begin
   for t in
     select unnest(array[
-      'schedule_entries', 'todos', 'day_state', 'priorities',
+      'schedule_entries', 'todos', 'day_state', 'priorities', 'period_state',
       'habits', 'habit_logs',
       'journal_entries',
       'goals', 'goal_tasks', 'goal_entries',

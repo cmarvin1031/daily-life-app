@@ -2,7 +2,7 @@ import { formatHourLabel, parseDateKey, toDateKey, toMonthKey, toWeekKey } from 
 import { useNow } from '../../lib/useNow.js';
 import { ListCard } from '../../components/ListCard.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
-import { useDayInit, useSchedule, useTodos, usePriorities } from '../planner/usePlannerData.js';
+import { useDayInit, useSchedule, useTodos, useTodoMutations, usePriorities } from '../planner/usePlannerData.js';
 import { useCalendarEvents } from '../calendar/useCalendarData.js';
 import { useAllHabitLogs, useHabits, useLogsForDate } from '../habits/useHabitsData.js';
 import { computeStreak, getLast7Days } from '../habits/streak.js';
@@ -28,6 +28,7 @@ export default function DashboardView({ onNavigate }) {
 
   // Planner: to-dos + priorities
   const { data: todos = [] } = useTodos(todayKey, dayReady);
+  const todoMutations = useTodoMutations(todayKey);
   const todosRemaining = todos.filter((t) => !t.done);
   const { data: weekPriorities = [] } = usePriorities('week', weekKey, true);
   const { data: monthPriorities = [] } = usePriorities('month', monthKey, true);
@@ -126,7 +127,19 @@ export default function DashboardView({ onNavigate }) {
               <div className="dashboard-todo-list">
                 {todosRemaining.map((todo) => (
                   <div key={todo.id} className="dashboard-todo-row" onClick={() => onNavigate('planner')}>
-                    <span className="dashboard-todo-marker" aria-hidden="true" />
+                    {/* The circle ticks the item off right here; the text
+                        still opens Planner for editing/reordering. */}
+                    <button
+                      type="button"
+                      className="dashboard-todo-check"
+                      aria-label={`Mark "${todo.text}" done`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        todoMutations.update.mutate({ id: todo.id, fields: { done: true } });
+                      }}
+                    >
+                      <span className="dashboard-todo-marker" aria-hidden="true" />
+                    </button>
                     <span className="dashboard-todo-text">{todo.text}</span>
                   </div>
                 ))}

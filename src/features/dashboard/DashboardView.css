@@ -277,11 +277,31 @@
 
 .dashboard-todo-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
+}
+
+/* Generous invisible hit area around the small marker. */
+.dashboard-todo-check {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  padding: 8px;
+  margin: -8px;
+  display: flex;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-todo-check:hover .dashboard-todo-marker {
+  background: color-mix(in srgb, var(--chip-orange) 25%, white);
+}
+
+.dashboard-todo-check:active .dashboard-todo-marker {
+  background: var(--chip-orange);
 }
 
 .dashboard-todo-row:last-child {
@@ -301,8 +321,7 @@
   height: 8px;
   border-radius: 50%;
   border: 1.5px solid var(--chip-orange);
-  position: relative;
-  top: -1px;
+  transition: background 0.1s ease;
 }
 
 .dashboard-todo-text {

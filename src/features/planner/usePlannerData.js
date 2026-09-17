@@ -71,11 +71,26 @@ export function useTodoMutations(dateKey) {
   };
 }
 
-export function usePriorities(scope, periodKey, enabled) {
+// Week/month counterpart of useDayInit; usePriorities gates on it so the
+// rollover has run before a period's list is first read.
+export function usePeriodInit(scope, periodKey) {
+  return useQuery({
+    queryKey: ['periodInit', scope, periodKey],
+    queryFn: async () => {
+      await api.ensurePeriod(scope, periodKey);
+      return true;
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+}
+
+export function usePriorities(scope, periodKey, enabled = true) {
+  const init = usePeriodInit(scope, periodKey);
   return useQuery({
     queryKey: ['priorities', scope, periodKey],
     queryFn: () => api.getPriorities(scope, periodKey),
-    enabled,
+    enabled: enabled && init.isSuccess,
   });
 }
 
