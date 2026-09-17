@@ -1,17 +1,11 @@
-/* Timeline layout. Everything is positioned off two custom properties so
-   the JS only ever emits calc() expressions:
+/* Timeline layout. Blocks are positioned off two custom properties so the
+   JS only ever emits calc() expressions:
      --row-h   height of one hour row
-     --label-w width of the hour-label column
-     --lane-w  width of the events lane (0 when the day has no events) */
+     --label-w width of the hour-label column */
 .schedule-grid {
   --row-h: 52px;
   --label-w: 64px;
-  --lane-w: 0px;
   position: relative;
-}
-
-.schedule-grid.has-events {
-  --lane-w: 46%;
 }
 
 .schedule-hours {
@@ -21,7 +15,7 @@
 
 .schedule-row {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   height: var(--row-h);
   border-top: 1px solid var(--border);
 }
@@ -43,52 +37,46 @@
   white-space: nowrap;
 }
 
-.schedule-row-content {
+/* Invisible tap target filling the rest of the row. Blocks render above
+   it, so it only ever catches taps on empty time. */
+.schedule-slot {
   flex: 1;
-  min-width: 0;
-  height: 100%;
-  margin-left: var(--lane-w);
-  display: flex;
-  align-items: center;
-  padding: 3px 0 3px 8px;
-}
-
-.schedule-input {
-  width: 100%;
-  border: 1px solid transparent;
+  border: none;
   background: transparent;
-  padding: 6px 8px;
-  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.schedule-input:hover {
-  background: var(--bg);
+.schedule-slot:hover {
+  background: color-mix(in srgb, var(--chip-blue) 5%, transparent);
 }
 
-.schedule-input:focus {
-  background: var(--bg);
-  border-color: transparent;
-}
-
-/* Events lane: overlays the rows, between the labels and the inputs. */
-.schedule-events {
+/* The lane: overlays the rows to the right of the labels. */
+.schedule-lane {
   position: absolute;
   top: 0;
   bottom: 0;
   left: var(--label-w);
-  width: var(--lane-w);
+  right: 0;
   pointer-events: none;
 }
 
-.schedule-event {
+/* One style for calendar events and typed notes alike. */
+.schedule-block {
   position: absolute;
   box-sizing: border-box;
   margin-top: 1px;
   padding: 4px 6px 4px 8px;
-  border-radius: 6px;
+  border: none;
   border-left: 3px solid var(--chip-blue);
+  border-radius: 6px;
   background: color-mix(in srgb, var(--chip-blue) 14%, white);
   color: color-mix(in srgb, var(--chip-blue) 70%, var(--text));
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -96,20 +84,18 @@
   pointer-events: auto;
   min-height: 16px;
   box-shadow: 0 0 0 1px var(--surface);
+  z-index: 1;
 }
 
 /* Titles may wrap to two lines in blocks tall enough to show them. */
-.schedule-event-title {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.25;
+.schedule-block-title {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
-.schedule-event-time {
+.schedule-block-time {
   font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
@@ -117,15 +103,36 @@
   text-overflow: ellipsis;
 }
 
-.schedule-event--compact {
+.schedule-block--compact {
   padding-top: 1px;
   padding-bottom: 1px;
   justify-content: center;
 }
 
-.schedule-event--compact .schedule-event-title {
+.schedule-block--compact .schedule-block-title {
   font-size: 11px;
   -webkit-line-clamp: 1;
+}
+
+/* Typed notes are inputs wearing the block style, editable in place. */
+.schedule-block--typed {
+  display: block;
+  padding-top: 0;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  cursor: text;
+}
+
+.schedule-block--typed::placeholder {
+  color: color-mix(in srgb, var(--chip-blue) 55%, white);
+  font-weight: 600;
+}
+
+.schedule-block--typed:focus {
+  outline: 2px solid var(--chip-blue);
+  outline-offset: 0;
+  background: var(--surface);
+  z-index: 2;
 }
 
 /* Current time: a red line across the timeline, dot on the label edge. */
@@ -136,7 +143,7 @@
   height: 0;
   border-top: 2px solid #ea4335;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
 .schedule-now-dot {
@@ -155,20 +162,15 @@
     --label-w: 54px;
   }
 
-  .schedule-grid.has-events {
-    --lane-w: 50%;
-  }
-
   .schedule-hour {
     font-size: 10px;
     padding-right: 6px;
   }
 
-  .schedule-row-content {
-    padding-left: 6px;
-  }
-
-  .schedule-input {
-    padding: 5px 6px;
+  /* Phone inputs are bumped to 16px globally to stop iOS focus-zoom; the
+     note blocks need that too, so keep it (Safari zooms below 16px). */
+  .schedule-block--typed {
+    font-size: 16px;
+    font-weight: 600;
   }
 }
