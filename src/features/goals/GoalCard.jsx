@@ -4,7 +4,7 @@ import EditableList from '../../components/EditableList.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
 import { parseDateKey } from '../../lib/dateUtils.js';
 import { useDebouncedActions } from '../../lib/useDebouncedActions.js';
-import { useGoalMutations, useGoalTaskMutations, useGoalTasks } from './useGoalsData.js';
+import { useGoalEntries, useGoalEntryMutations, useGoalMutations, useGoalTaskMutations, useGoalTasks } from './useGoalsData.js';
 import './GoalCard.css';
 
 const STATUSES = ['active', 'completed', 'archived'];
@@ -143,6 +143,24 @@ export default function GoalCard({ goal, counts }) {
                 ))}
               </div>
 
+              {goal.goal_type === 'counter' && (
+                <label className="goal-details-field">
+                  <span className="text-muted">Target count</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    className="goal-details-target-input"
+                    defaultValue={goal.counter_target || ''}
+                    onBlur={(e) => {
+                      const n = Number(e.target.value);
+                      if (n > 0 && n !== goal.counter_target) update.mutate({ id: goal.id, fields: { counter_target: n } });
+                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+                  />
+                </label>
+              )}
+
               <label className="goal-details-field">
                 <span className="text-muted">Target date</span>
                 <input
@@ -163,11 +181,7 @@ export default function GoalCard({ goal, counts }) {
           {goal.goal_type === 'counter' ? (
             <div className="goal-details-section">
               <h4>Progress</h4>
-              <CounterProgress
-                current={goal.counter_current}
-                target={goal.counter_target}
-                onSetCurrent={(value) => update.mutate({ id: goal.id, fields: { counter_current: value } })}
-              />
+              <CounterProgress goal={goal} />
             </div>
           ) : (
             <div className="goal-details-section">
@@ -193,29 +207,111 @@ export default function GoalCard({ goal, counts }) {
   );
 }
 
-function CounterProgress({ current, target, onSetCurrent }) {
+// Pips summarise progress; the list beneath is what each one *is* -- a book
+// title, a date. Adding with an empty label still counts (an untitled pip).
+function CounterProgress({ goal }) {
+  const { data: entries = [] } = useGoalEntries(goal.id);
+  const entryMutations = useGoalEntryMutations(goal.id);
+  const [label, setLabel] = useState('');
+
+  const target = goal.counter_target || 0;
+  const current = goal.counter_current || 0;
   const pips = Array.from({ length: target }, (_, i) => i + 1);
+
+  function submit(e) {
+    e.preventDefault();
+    entryMutations.add.mutate({ label });
+    setLabel('');
+  }
 
   return (
     <div className="goal-counter">
       <div className="text-muted goal-counter-label">
         {current} of {target} complete
       </div>
-      <div className="goal-counter-pips">
-        {pips.map((n) => {
-          const filled = n <= current;
-          return (
-            <button
-              key={n}
-              type="button"
-              className={filled ? 'goal-counter-pip filled' : 'goal-counter-pip'}
-              onClick={() => onSetCurrent(filled ? n - 1 : n)}
-              aria-label={`Mark ${n} of ${target} complete`}
-            />
-          );
-        })}
+      <div className="goal-counter-pips" aria-hidden="true">
+        {pips.map((n) => (
+          <span key={n} className={n <= current ? 'goal-counter-pip filled' : 'goal-counter-pip'} />
+        ))}
       </div>
+
+      {entries.length > 0 && (
+        <ul className="goal-entries">
+          {entries.map((entry) => (
+            <EntryRow
+              key={entry.id}
+              entry={entry}
+              onRename={(text) => entryMutations.update.mutate({ id: entry.id, fields: { label: text } })}
+              onDelete={() => entryMutations.remove.mutate(entry.id)}
+            />
+          ))}
+        </ul>
+      )}
+
+      <form className="goal-entry-add" onSubmit={submit}>
+        <input
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          placeholder="What did you finish? (optional)"
+          aria-label="Entry label"
+        />
+        <button className="btn btn-secondary" type="submit" disabled={current >= target && target > 0}>
+          + Add
+        </button>
+      </form>
     </div>
+  );
+}
+
+function EntryRow({ entry, onRename, onDelete }) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(entry.label);
+
+  function commit() {
+    const trimmed = text.trim();
+    if (trimmed !== entry.label) onRename(trimmed);
+    setEditing(false);
+  }
+
+  const date = parseDateKey(entry.entry_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+  return (
+    <li className="goal-entry">
+      <span className="goal-entry-dot" aria-hidden="true" />
+      {editing ? (
+        <input
+          className="goal-entry-input"
+          autoFocus
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') commit();
+            if (e.key === 'Escape') {
+              setText(entry.label);
+              setEditing(false);
+            }
+          }}
+          placeholder="Untitled"
+        />
+      ) : (
+        <button
+          type="button"
+          className={entry.label ? 'goal-entry-label' : 'goal-entry-label untitled'}
+          onClick={() => {
+            setText(entry.label);
+            setEditing(true);
+          }}
+          title="Tap to rename"
+        >
+          {entry.label || 'Untitled'}
+        </button>
+      )}
+      <span className="text-muted goal-entry-date">{date}</span>
+      <button type="button" className="goal-entry-delete" onClick={onDelete} aria-label="Remove entry">
+        ✕
+      </button>
+    </li>
   );
 }
 

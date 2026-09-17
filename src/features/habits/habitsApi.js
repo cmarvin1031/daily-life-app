@@ -35,46 +35,51 @@ export async function deleteHabitPermanently(id) {
   if (error) throw error;
 }
 
-// Every logged date for a habit, all-time (feeds both the streak calc and
-// the month history grid). Paged: a daily habit crosses Supabase's 1000-row
+// Every log for a habit, all-time, as [{ date, value }] (see habitProgress.js
+// for what `value` means). Paged: a daily habit crosses Supabase's 1000-row
 // response cap after ~2.7 years, and a truncated history would silently
 // break streaks.
-export async function getHabitLogDates(habitId) {
-  const rows = await fetchAllRows(() =>
-    supabase.from('habit_logs').select('date').eq('habit_id', habitId).order('date', { ascending: false }),
+export async function getHabitLogs(habitId) {
+  return fetchAllRows(() =>
+    supabase.from('habit_logs').select('date, value').eq('habit_id', habitId).order('date', { ascending: false }),
   );
-  return rows.map((row) => row.date);
 }
 
-// All log dates for every habit, grouped by habit_id -- feeds the
-// Dashboard's longest-streak stat and weekly chart without an N+1 query per
-// habit. Paged for the same reason as above, and this one hits the cap much
-// sooner (5 daily habits = ~7 months).
+// All logs for every habit, grouped by habit_id -- feeds the Dashboard's
+// streaks and week dots without an N+1 query per habit. Paged for the same
+// reason as above, and this one hits the cap much sooner.
 export async function getAllHabitLogsByHabit() {
   const rows = await fetchAllRows(() =>
     supabase
       .from('habit_logs')
-      .select('habit_id, date')
+      .select('habit_id, date, value')
       .order('date', { ascending: false })
       .order('habit_id', { ascending: true }),
   );
   const byHabit = {};
   for (const row of rows) {
     if (!byHabit[row.habit_id]) byHabit[row.habit_id] = [];
-    byHabit[row.habit_id].push(row.date);
+    byHabit[row.habit_id].push({ date: row.date, value: row.value });
   }
   return byHabit;
 }
 
-export async function getHabitIdsLoggedOn(dateKey) {
-  const { data, error } = await supabase.from('habit_logs').select('habit_id').eq('date', dateKey);
+// { [habitId]: value } for every habit logged on the date.
+export async function getLogsForDate(dateKey) {
+  const { data, error } = await supabase.from('habit_logs').select('habit_id, value').eq('date', dateKey);
   if (error) throw error;
-  return data.map((row) => row.habit_id);
+  const byHabit = {};
+  for (const row of data) byHabit[row.habit_id] = row.value;
+  return byHabit;
 }
 
-export async function logHabitDay(habitId, dateKey) {
-  const { error } = await supabase.from('habit_logs').insert({ habit_id: habitId, date: dateKey });
-  if (error && error.code !== '23505') throw error; // already logged elsewhere; treat as success
+// Creates or replaces the day's log. value: null for a plain check, a
+// number for a quantity habit.
+export async function setHabitLog(habitId, dateKey, value = null) {
+  const { error } = await supabase
+    .from('habit_logs')
+    .upsert({ habit_id: habitId, date: dateKey, value }, { onConflict: 'habit_id,date' });
+  if (error) throw error;
 }
 
 export async function unlogHabitDay(habitId, dateKey) {

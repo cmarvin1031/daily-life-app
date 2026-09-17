@@ -59,6 +59,8 @@ create table public.habits (
   name text not null,
   color text not null default 'green' check (color in ('green', 'blue', 'orange', 'purple', 'teal')),
   icon text,
+  target_value numeric check (target_value > 0), -- quantity habit ("10 pages"); null = plain check-off
+  unit text not null default '',
   position integer not null default 0,
   archived boolean not null default false,
   created_at timestamptz not null default now()
@@ -71,6 +73,7 @@ create table public.habit_logs (
   habit_id uuid not null references public.habits(id) on delete cascade,
   user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
   date date not null,
+  value numeric check (value >= 0), -- amount logged for a quantity habit; null for a plain check
   primary key (habit_id, date)
 );
 create index habit_logs_user_date_idx on public.habit_logs (user_id, date);
@@ -123,6 +126,36 @@ create table public.goal_tasks (
 );
 create index goal_tasks_user_goal_idx on public.goal_tasks (user_id, goal_id);
 
+-- Counter goals: each increment is a row here (a book title, a date...).
+-- goals.counter_current is kept equal to the sum of a goal's entries by the
+-- trigger below, so readers never have to aggregate.
+create table public.goal_entries (
+  id uuid primary key default gen_random_uuid(),
+  goal_id uuid not null references public.goals(id) on delete cascade,
+  user_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  label text not null default '',
+  value integer not null default 1 check (value > 0),
+  entry_date date not null default current_date,
+  created_at timestamptz not null default now()
+);
+create index goal_entries_user_goal_idx on public.goal_entries (user_id, goal_id);
+
+create or replace function public.sync_goal_counter() returns trigger
+language plpgsql as $$
+declare
+  gid uuid := coalesce(new.goal_id, old.goal_id);
+begin
+  update public.goals
+     set counter_current = coalesce((select sum(value) from public.goal_entries where goal_id = gid), 0),
+         updated_at = now()
+   where id = gid;
+  return null;
+end $$;
+
+create trigger goal_entries_sync
+  after insert or update or delete on public.goal_entries
+  for each row execute function public.sync_goal_counter();
+
 -- ─────────────────────────────────────────────────────────────────────────
 -- Notes module
 -- ─────────────────────────────────────────────────────────────────────────
@@ -162,7 +195,7 @@ begin
       'schedule_entries', 'todos', 'day_state', 'priorities',
       'habits', 'habit_logs',
       'journal_entries',
-      'goals', 'goal_tasks',
+      'goals', 'goal_tasks', 'goal_entries',
       'notebooks', 'notes'
     ])
   loop

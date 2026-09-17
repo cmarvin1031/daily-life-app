@@ -4,8 +4,9 @@ import { ListCard } from '../../components/ListCard.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
 import { useDayInit, useSchedule, useTodos, usePriorities } from '../planner/usePlannerData.js';
 import { useCalendarEvents } from '../calendar/useCalendarData.js';
-import { useAllHabitLogs, useHabits, useTodayLoggedHabitIds } from '../habits/useHabitsData.js';
+import { useAllHabitLogs, useHabits, useLogsForDate } from '../habits/useHabitsData.js';
 import { computeStreak, getLast7Days } from '../habits/streak.js';
+import { doneDateKeys, isLogDone } from '../habits/habitProgress.js';
 import ProgressRing from '../habits/ProgressRing.jsx';
 import { paletteColorValue } from '../../lib/colorPalette.js';
 import { useGoalTaskCounts, useGoals } from '../goals/useGoalsData.js';
@@ -61,11 +62,12 @@ export default function DashboardView({ onNavigate }) {
 
   // Habits
   const { data: habits = [] } = useHabits(false);
-  const { data: doneTodayIds = [] } = useTodayLoggedHabitIds(todayKey);
+  const { data: todayLogs = {} } = useLogsForDate(todayKey);
   const { data: logsByHabit = {} } = useAllHabitLogs();
-  const doneToday = new Set(doneTodayIds);
-  const habitsDoneToday = habits.filter((h) => doneToday.has(h.id)).length;
-  const streaks = Object.fromEntries(habits.map((h) => [h.id, computeStreak(logsByHabit[h.id] || [])]));
+  const doneToday = new Set(habits.filter((h) => isLogDone(h, todayLogs[h.id])).map((h) => h.id));
+  const habitsDoneToday = doneToday.size;
+  const doneKeysByHabit = Object.fromEntries(habits.map((h) => [h.id, doneDateKeys(h, logsByHabit[h.id] || [])]));
+  const streaks = Object.fromEntries(habits.map((h) => [h.id, computeStreak(doneKeysByHabit[h.id])]));
   const longestStreak = Math.max(0, ...Object.values(streaks));
 
   // Goals
@@ -86,7 +88,7 @@ export default function DashboardView({ onNavigate }) {
           the full Habits card below is hidden at phone widths instead. */}
       <DashboardHabits
         habits={habits}
-        doneToday={doneToday}
+        todayLogs={todayLogs}
         streaks={streaks}
         todayKey={todayKey}
         onOpen={() => onNavigate('habits')}
@@ -188,9 +190,8 @@ export default function DashboardView({ onNavigate }) {
             ) : (
               <div className="dashboard-habits-list">
                 {habits.map((habit) => {
-                  const loggedDates = logsByHabit[habit.id] || [];
-                  const last7 = getLast7Days(loggedDates);
-                  const streak = computeStreak(loggedDates);
+                  const last7 = getLast7Days(doneKeysByHabit[habit.id]);
+                  const streak = streaks[habit.id];
                   const color = paletteColorValue(habit.color);
                   const isDoneToday = doneToday.has(habit.id);
                   return (

@@ -34,6 +34,37 @@ export function useGoalMutations() {
   };
 }
 
+export function useGoalEntries(goalId, enabled = true) {
+  return useQuery({
+    queryKey: ['goalEntries', goalId],
+    queryFn: () => api.getGoalEntries(goalId),
+    enabled: !!goalId && enabled,
+  });
+}
+
+// Entry changes also move the goal's counter (via the DB trigger), so the
+// goals list is refreshed alongside the entries.
+export function useGoalEntryMutations(goalId) {
+  const queryClient = useQueryClient();
+  const key = ['goalEntries', goalId];
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: key });
+    queryClient.invalidateQueries({ queryKey: ['goals'] });
+  };
+
+  return {
+    add: useMutation({ mutationFn: (fields) => api.addGoalEntry(goalId, fields), onSuccess: invalidate }),
+    update: useMutation({
+      mutationFn: ({ id, fields }) => api.updateGoalEntry(id, fields),
+      ...optimistic(queryClient, ({ id, fields }) => [{ key, apply: patchById(id, fields) }], invalidate),
+    }),
+    remove: useMutation({
+      mutationFn: (id) => api.deleteGoalEntry(id),
+      ...optimistic(queryClient, (id) => [{ key, apply: removeById(id) }], invalidate),
+    }),
+  };
+}
+
 export function useGoalTasks(goalId, enabled = true) {
   return useQuery({
     queryKey: ['goalTasks', goalId],

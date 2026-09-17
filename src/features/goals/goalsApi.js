@@ -47,6 +47,38 @@ export async function getTaskCountsForGoals(goalIds) {
   return counts;
 }
 
+// ── Entries (counter goals) ─────────────────────────────────────────────
+// Each increment of a counter goal is a row: "Project Hail Mary", Sep 4.
+// A DB trigger keeps goals.counter_current equal to the sum of entries.
+
+export async function getGoalEntries(goalId) {
+  const { data, error } = await supabase
+    .from('goal_entries')
+    .select('*')
+    .eq('goal_id', goalId)
+    .order('entry_date', { ascending: false })
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function addGoalEntry(goalId, { label = '', value = 1, entryDate } = {}) {
+  const row = { goal_id: goalId, label: label.trim(), value };
+  if (entryDate) row.entry_date = entryDate;
+  const { error } = await supabase.from('goal_entries').insert(row);
+  if (error) throw error;
+}
+
+export async function updateGoalEntry(id, fields) {
+  const { error } = await supabase.from('goal_entries').update(fields).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteGoalEntry(id) {
+  const { error } = await supabase.from('goal_entries').delete().eq('id', id);
+  if (error) throw error;
+}
+
 // ── Tasks ───────────────────────────────────────────────────────────────
 
 export async function getGoalTasks(goalId) {

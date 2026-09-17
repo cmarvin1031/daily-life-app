@@ -59,8 +59,11 @@
 .month-cell {
   aspect-ratio: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1px;
+  line-height: 1;
   font-size: 11px;
   font-weight: 600;
   border: none;
@@ -89,6 +92,22 @@
 .month-cell.done {
   background: var(--accent);
   color: #ffffff;
+}
+
+/* Quantity habit: logged something, but under the target. */
+.month-cell.partial {
+  background: color-mix(in srgb, var(--accent) 28%, white);
+  color: var(--text);
+}
+
+.month-cell-value {
+  font-size: 8px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.month-cell.has-value .month-cell-day {
+  font-size: 10px;
 }
 
 .month-cell.done:hover:not(:disabled) {

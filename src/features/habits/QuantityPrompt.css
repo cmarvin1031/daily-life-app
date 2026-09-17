@@ -1,0 +1,54 @@
+.qty-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.qty-panel {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qty-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.qty-date {
+  font-size: 12px;
+  margin-top: -8px;
+}
+
+.qty-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qty-input-row input {
+  width: 120px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px 10px;
+}
+
+.qty-target {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.qty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}

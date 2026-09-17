@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { toDateKey, formatDisplayDate } from '../../lib/dateUtils.js';
 import { useNow } from '../../lib/useNow.js';
 import { ListCard } from '../../components/ListCard.jsx';
-import { useHabits, useHabitMutations, useTodayLoggedHabitIds } from './useHabitsData.js';
+import { useHabits, useHabitMutations, useLogsForDate } from './useHabitsData.js';
+import { isLogDone } from './habitProgress.js';
 import HabitRow from './HabitRow.jsx';
 import ProgressRing from './ProgressRing.jsx';
 import './HabitsView.css';
@@ -16,12 +17,11 @@ export default function HabitsView() {
   const todayKey = toDateKey(now);
 
   const { data: habits = [] } = useHabits(false);
-  const { data: doneTodayIds = [] } = useTodayLoggedHabitIds(todayKey);
+  const { data: todayLogs = {} } = useLogsForDate(todayKey);
   const { data: archivedHabits = [] } = useHabits(true, { enabled: showArchived });
   const { add, update, archive, restore, remove } = useHabitMutations();
 
-  const doneToday = new Set(doneTodayIds);
-  const doneCount = habits.filter((h) => doneToday.has(h.id)).length;
+  const doneCount = habits.filter((h) => isLogDone(h, todayLogs[h.id])).length;
 
   function handleAdd(e) {
     e.preventDefault();
@@ -83,6 +83,7 @@ export default function HabitsView() {
               onRename={(name) => update.mutate({ id: habit.id, fields: { name } })}
               onColorChange={(color) => update.mutate({ id: habit.id, fields: { color } })}
               onIconChange={(icon) => update.mutate({ id: habit.id, fields: { icon } })}
+              onTargetChange={(fields) => update.mutate({ id: habit.id, fields })}
             />
           ))}
         </div>

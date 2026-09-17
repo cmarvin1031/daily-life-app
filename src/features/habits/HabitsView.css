@@ -166,6 +166,31 @@
   border-color: var(--accent);
 }
 
+/* Quantity habit with something logged but under target: shows the amount. */
+.habit-row-check.partial {
+  font-size: 11px;
+  border-width: 2px;
+}
+
+.habit-target-row {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.habit-target-input {
+  width: 90px;
+}
+
+.habit-unit-input {
+  flex: 1;
+  min-width: 120px;
+}
+
+.habit-target-hint {
+  flex-basis: 100%;
+  font-size: 12px;
+}
+
 /* Expandable details panel */
 
 .habit-details {
