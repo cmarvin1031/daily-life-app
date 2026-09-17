@@ -21,6 +21,10 @@ export default function PlannerView() {
 
   const { data: calendarEvents } = useCalendarEvents(dateKey);
 
+  // The three blocks are grid areas: two columns on desktop (schedule left,
+  // to-do + priorities right), and on phones a single column ordered
+  // to-do -> schedule -> priorities so the actionable list is on the first
+  // screen instead of below 17 hours of grid.
   return (
     <div className="planner-view">
       <DateNav currentDate={currentDate} onChange={setCurrentDate} />
@@ -36,8 +40,11 @@ export default function PlannerView() {
           <ScheduleGrid key={dateKey} dateKey={dateKey} enabled={dayReady} googleEvents={calendarEvents?.timed || []} />
         </div>
 
-        <div className="planner-side">
+        <div className="planner-todo">
           <TodoList dateKey={dateKey} enabled={dayReady} />
+        </div>
+
+        <div className="planner-priorities">
           <PrioritiesPanel weekKey={weekKey} monthKey={monthKey} enabled={dayReady} />
         </div>
       </div>

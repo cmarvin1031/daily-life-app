@@ -18,6 +18,11 @@
   border-bottom: none;
 }
 
+/* Hours outside 6am-10pm, shown only because a calendar event lands there. */
+.schedule-row--extra {
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+}
+
 .schedule-hour {
   flex-shrink: 0;
   width: 76px;
@@ -47,6 +52,12 @@
   white-space: nowrap;
 }
 
+.schedule-gcal-chip--continues {
+  font-weight: 500;
+  opacity: 0.7;
+  background: color-mix(in srgb, var(--chip-blue) 6%, white);
+}
+
 .schedule-gcal-time {
   font-weight: 700;
 }
@@ -66,4 +77,29 @@
 .schedule-input:focus {
   background: var(--bg);
   border-color: transparent;
+}
+
+@media (max-width: 900px) {
+  /* No inner scroll box on phones: a swipe over the grid would scroll the
+     grid instead of the page and trap you above the rest of the planner. */
+  .schedule-grid {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .schedule-row {
+    padding: 3px 0;
+    gap: 8px;
+  }
+
+  .schedule-hour {
+    width: 62px;
+    padding-top: 7px;
+    font-size: 11px;
+  }
+
+  .schedule-input {
+    padding: 5px 8px;
+  }
 }

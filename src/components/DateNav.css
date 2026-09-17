@@ -11,6 +11,11 @@
   align-items: center;
   gap: 2px;
   text-align: center;
+  min-width: 0;
+}
+
+.date-nav-short {
+  display: none;
 }
 
 .date-nav-today-btn {
@@ -25,4 +30,20 @@
 
 .date-nav-today-btn:hover {
   text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .date-nav-long {
+    display: none;
+  }
+
+  .date-nav-short {
+    display: block;
+    font-size: 20px;
+    white-space: nowrap;
+  }
+
+  .date-nav-today-btn {
+    font-size: 12px;
+  }
 }

@@ -29,22 +29,53 @@
 .planner-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-areas:
+    'schedule todo'
+    'schedule priorities';
   gap: 20px;
   align-items: start;
+}
+
+.planner-schedule-card {
+  grid-area: schedule;
 }
 
 .planner-schedule-card h3 {
   margin-bottom: 12px;
 }
 
-.planner-side {
+.planner-todo {
+  grid-area: todo;
+  min-width: 0;
+}
+
+.planner-priorities {
+  grid-area: priorities;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
 @media (max-width: 900px) {
+  .planner-view {
+    gap: 12px;
+  }
+
   .planner-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'todo'
+      'schedule'
+      'priorities';
+    gap: 12px;
+  }
+
+  .planner-priorities {
+    gap: 12px;
+  }
+
+  .planner-schedule-card h3 {
+    margin-bottom: 8px;
   }
 }
