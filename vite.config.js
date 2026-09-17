@@ -15,7 +15,7 @@ export default defineConfig(({ command }) => ({
       manifest: {
         name: 'Daily Life',
         short_name: 'Daily Life',
-        description: 'Daily planner, habit tracker, journal, and goals',
+        description: 'Calendar, to-dos, habit tracker, goals and notes',
         theme_color: '#0F3D2E',
         background_color: '#F5F6F8',
         display: 'standalone',

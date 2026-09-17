@@ -1,6 +1,6 @@
 # Daily Life
 
-A personal daily planner, habit tracker, journal, and goals tracker. Installs
+A personal day calendar, to-do list, habit tracker, goals and notes app. Installs
 as a Progressive Web App on iPhone (Add to Home Screen) and works in any
 browser on Windows. Data syncs across devices through a real Supabase account
 (email + password), not local-only storage.
@@ -183,7 +183,7 @@ builds and deploys to GitHub Pages on every push to `main`.
 
 ## Data model
 
-Each module (planner, habits, journal, goals) has its own Supabase tables,
+Each module (calendar/to-dos, habits, goals, notes) has its own Supabase tables,
 documented in [`supabase/schema.sql`](supabase/schema.sql). Every table
 carries a `user_id` column enforced by Row Level Security, so each signed-in
 user only ever sees their own rows.

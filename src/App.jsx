@@ -10,8 +10,8 @@ import ErrorBoundary from './components/ErrorBoundary.jsx';
 import Toaster from './components/Toaster.jsx';
 import DashboardView from './features/dashboard/DashboardView.jsx';
 import PlannerView from './features/planner/PlannerView.jsx';
+import TodosView from './features/todos/TodosView.jsx';
 import HabitsView from './features/habits/HabitsView.jsx';
-import JournalView from './features/journal/JournalView.jsx';
 import GoalsView from './features/goals/GoalsView.jsx';
 import NotesView from './features/notes/NotesView.jsx';
 
@@ -27,9 +27,9 @@ const queryClient = new QueryClient({
 
 const VIEWS = {
   dashboard: DashboardView,
-  planner: PlannerView,
+  planner: PlannerView, // the "Calendar" tab
+  todos: TodosView,
   habits: HabitsView,
-  journal: JournalView,
   goals: GoalsView,
   notes: NotesView,
 };

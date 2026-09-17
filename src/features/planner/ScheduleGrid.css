@@ -1,69 +1,60 @@
+/* Timeline layout. Everything is positioned off two custom properties so
+   the JS only ever emits calc() expressions:
+     --row-h   height of one hour row
+     --label-w width of the hour-label column
+     --lane-w  width of the events lane (0 when the day has no events) */
 .schedule-grid {
+  --row-h: 52px;
+  --label-w: 64px;
+  --lane-w: 0px;
+  position: relative;
+}
+
+.schedule-grid.has-events {
+  --lane-w: 46%;
+}
+
+.schedule-hours {
   display: flex;
   flex-direction: column;
-  max-height: 560px;
-  overflow-y: auto;
-  padding-right: 4px;
 }
 
 .schedule-row {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
+  height: var(--row-h);
+  border-top: 1px solid var(--border);
 }
 
-.schedule-row:last-child {
-  border-bottom: none;
-}
-
-/* Hours outside 6am-10pm, shown only because a calendar event lands there. */
 .schedule-row--extra {
   background: color-mix(in srgb, var(--bg) 60%, transparent);
 }
 
+/* Labels sit just below the hour line, Google-style. */
 .schedule-hour {
   flex-shrink: 0;
-  width: 76px;
-  padding-top: 6px;
-  font-size: 12px;
+  width: var(--label-w);
+  padding-top: 4px;
+  padding-right: 8px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
 }
 
 .schedule-row-content {
   flex: 1;
   min-width: 0;
+  height: 100%;
+  margin-left: var(--lane-w);
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.schedule-gcal-chip {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--chip-blue);
-  background: color-mix(in srgb, var(--chip-blue) 12%, white);
-  border-radius: var(--radius-md);
-  padding: 4px 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.schedule-gcal-chip--continues {
-  font-weight: 500;
-  opacity: 0.7;
-  background: color-mix(in srgb, var(--chip-blue) 6%, white);
-}
-
-.schedule-gcal-time {
-  font-weight: 700;
+  align-items: center;
+  padding: 3px 0 3px 8px;
 }
 
 .schedule-input {
-  flex: 1;
+  width: 100%;
   border: 1px solid transparent;
   background: transparent;
   padding: 6px 8px;
@@ -79,27 +70,105 @@
   border-color: transparent;
 }
 
+/* Events lane: overlays the rows, between the labels and the inputs. */
+.schedule-events {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--label-w);
+  width: var(--lane-w);
+  pointer-events: none;
+}
+
+.schedule-event {
+  position: absolute;
+  box-sizing: border-box;
+  margin-top: 1px;
+  padding: 4px 6px 4px 8px;
+  border-radius: 6px;
+  border-left: 3px solid var(--chip-blue);
+  background: color-mix(in srgb, var(--chip-blue) 14%, white);
+  color: color-mix(in srgb, var(--chip-blue) 70%, var(--text));
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  pointer-events: auto;
+  min-height: 16px;
+  box-shadow: 0 0 0 1px var(--surface);
+}
+
+/* Titles may wrap to two lines in blocks tall enough to show them. */
+.schedule-event-title {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.schedule-event-time {
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule-event--compact {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  justify-content: center;
+}
+
+.schedule-event--compact .schedule-event-title {
+  font-size: 11px;
+  -webkit-line-clamp: 1;
+}
+
+/* Current time: a red line across the timeline, dot on the label edge. */
+.schedule-now {
+  position: absolute;
+  left: calc(var(--label-w) - 4px);
+  right: 0;
+  height: 0;
+  border-top: 2px solid #ea4335;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.schedule-now-dot {
+  position: absolute;
+  left: -5px;
+  top: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ea4335;
+}
+
 @media (max-width: 900px) {
-  /* No inner scroll box on phones: a swipe over the grid would scroll the
-     grid instead of the page and trap you above the rest of the planner. */
   .schedule-grid {
-    max-height: none;
-    overflow: visible;
-    padding-right: 0;
+    --row-h: 46px;
+    --label-w: 54px;
   }
 
-  .schedule-row {
-    padding: 3px 0;
-    gap: 8px;
+  .schedule-grid.has-events {
+    --lane-w: 50%;
   }
 
   .schedule-hour {
-    width: 62px;
-    padding-top: 7px;
-    font-size: 11px;
+    font-size: 10px;
+    padding-right: 6px;
+  }
+
+  .schedule-row-content {
+    padding-left: 6px;
   }
 
   .schedule-input {
-    padding: 5px 8px;
+    padding: 5px 6px;
   }
 }

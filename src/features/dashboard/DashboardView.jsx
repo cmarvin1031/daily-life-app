@@ -126,7 +126,7 @@ export default function DashboardView({ onNavigate }) {
             {todosRemaining.length > 0 && (
               <div className="dashboard-todo-list">
                 {todosRemaining.map((todo) => (
-                  <div key={todo.id} className="dashboard-todo-row" onClick={() => onNavigate('planner')}>
+                  <div key={todo.id} className="dashboard-todo-row" onClick={() => onNavigate('todos')}>
                     {/* The circle ticks the item off right here; the text
                         still opens Planner for editing/reordering. */}
                     <button
