@@ -71,7 +71,7 @@
   border: none;
   border-left: 3px solid var(--chip-blue);
   border-radius: 6px;
-  background: color-mix(in srgb, var(--chip-blue) 14%, white);
+  background: color-mix(in srgb, var(--chip-blue) 14%, var(--surface));
   color: color-mix(in srgb, var(--chip-blue) 70%, var(--text));
   font-family: inherit;
   font-size: 12px;
@@ -124,7 +124,7 @@
 }
 
 .schedule-block--typed::placeholder {
-  color: color-mix(in srgb, var(--chip-blue) 55%, white);
+  color: color-mix(in srgb, var(--chip-blue) 55%, var(--surface));
   font-weight: 600;
 }
 

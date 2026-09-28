@@ -1,3 +1,4 @@
+import { pressable } from '../lib/a11y.js';
 import './ListCard.css';
 
 export function ListCard({ title, action, children, empty }) {
@@ -17,7 +18,7 @@ export function ListCard({ title, action, children, empty }) {
 
 export function ListRow({ icon, iconColor = 'blue', title, subtitle, right, onClick }) {
   return (
-    <div className={onClick ? 'list-row list-row--clickable' : 'list-row'} onClick={onClick}>
+    <div className={onClick ? 'list-row list-row--clickable' : 'list-row'} {...(onClick ? pressable(onClick) : {})}>
       {icon && (
         <span className={`list-row-icon list-row-icon--${iconColor}`}>
           <span>{icon}</span>

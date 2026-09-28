@@ -51,6 +51,11 @@
   line-height: 1.4;
 }
 
+.settings-theme {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
 .settings-signout {
   width: 100%;
 }

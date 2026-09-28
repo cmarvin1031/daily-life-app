@@ -2,9 +2,10 @@ import { useState } from 'react';
 import ExpandToggle from '../../components/ExpandToggle.jsx';
 import { PALETTE_COLORS, paletteColorValue } from '../../lib/colorPalette.js';
 import NoteCard from './NoteCard.jsx';
+import SortableList from '../../components/SortableList.jsx';
 import { useNoteMutations, useNotes } from './useNotesData.js';
 
-export default function NotebookCard({ notebook, count, onRename, onColorChange, onDelete }) {
+export default function NotebookCard({ notebook, count, dragHandle, onRename, onColorChange, onDelete }) {
   const color = paletteColorValue(notebook.color);
   const [expanded, setExpanded] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -13,7 +14,7 @@ export default function NotebookCard({ notebook, count, onRename, onColorChange,
   const [newNoteTitle, setNewNoteTitle] = useState('');
 
   const { data: notes = [] } = useNotes(notebook.id, expanded);
-  const { add, update, remove } = useNoteMutations(notebook.id);
+  const { add, update, remove, reorder } = useNoteMutations(notebook.id);
 
   function commitTitle() {
     const trimmed = titleValue.trim();
@@ -58,6 +59,7 @@ export default function NotebookCard({ notebook, count, onRename, onColorChange,
   return (
     <div className="card notebook-card" style={{ borderLeftColor: color }}>
       <div className="notebook-card-main">
+        {dragHandle}
         <ExpandToggle expanded={expanded} onClick={toggleExpanded} label="notebook" />
         <div className="notebook-card-avatar" style={{ background: color }}>
           📓
@@ -122,12 +124,19 @@ export default function NotebookCard({ notebook, count, onRename, onColorChange,
             </div>
           )}
 
-          <div className="notebook-pages">
-            {notes.length === 0 && <p className="text-muted notebook-pages-empty">No pages yet.</p>}
-            {notes.map((note) => (
-              <NoteCard key={note.id} note={note} update={update} onDelete={() => handleDeleteNote(note)} />
-            ))}
-          </div>
+          {notes.length === 0 ? (
+            <p className="text-muted notebook-pages-empty">No pages yet.</p>
+          ) : (
+            <SortableList
+              className="notebook-pages"
+              label="page"
+              items={notes}
+              onReorder={(ordered) => reorder.mutate(ordered)}
+              renderItem={(note, noteHandle) => (
+                <NoteCard note={note} update={update} dragHandle={noteHandle} onDelete={() => handleDeleteNote(note)} />
+              )}
+            />
+          )}
 
           {showAddNote ? (
             <form className="notebook-add-page-form" onSubmit={handleAddNote}>

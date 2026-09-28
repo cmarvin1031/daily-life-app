@@ -50,23 +50,23 @@
 }
 
 .list-row-icon--blue {
-  background: color-mix(in srgb, var(--chip-blue) 15%, white);
+  background: color-mix(in srgb, var(--chip-blue) 15%, var(--surface));
 }
 
 .list-row-icon--orange {
-  background: color-mix(in srgb, var(--chip-orange) 15%, white);
+  background: color-mix(in srgb, var(--chip-orange) 15%, var(--surface));
 }
 
 .list-row-icon--purple {
-  background: color-mix(in srgb, var(--chip-purple) 15%, white);
+  background: color-mix(in srgb, var(--chip-purple) 15%, var(--surface));
 }
 
 .list-row-icon--teal {
-  background: color-mix(in srgb, var(--chip-teal) 15%, white);
+  background: color-mix(in srgb, var(--chip-teal) 15%, var(--surface));
 }
 
 .list-row-icon--green {
-  background: color-mix(in srgb, var(--accent) 15%, white);
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface));
 }
 
 .list-row-text {

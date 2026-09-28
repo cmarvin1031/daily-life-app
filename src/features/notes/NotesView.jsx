@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNotebookMutations, useNotebooks, useNoteCounts } from './useNotesData.js';
 import NotebookCard from './NotebookCard.jsx';
+import SortableList from '../../components/SortableList.jsx';
 import './NotesView.css';
 
 export default function NotesView() {
@@ -9,7 +10,7 @@ export default function NotesView() {
 
   const { data: notebooks = [] } = useNotebooks();
   const { data: noteCounts = {} } = useNoteCounts(notebooks.map((n) => n.id));
-  const { add, update, remove } = useNotebookMutations();
+  const { add, update, remove, reorder } = useNotebookMutations();
 
   function handleAdd(e) {
     e.preventDefault();
@@ -55,18 +56,22 @@ export default function NotesView() {
       {notebooks.length === 0 ? (
         <p className="text-muted notes-empty">No notebooks yet — add one above to get started.</p>
       ) : (
-        <div className="notes-list">
-          {notebooks.map((notebook) => (
+        <SortableList
+          className="notes-list"
+          label="notebook"
+          items={notebooks}
+          onReorder={(ordered) => reorder.mutate(ordered)}
+          renderItem={(notebook, dragHandle) => (
             <NotebookCard
-              key={notebook.id}
               notebook={notebook}
               count={noteCounts[notebook.id]}
+              dragHandle={dragHandle}
               onRename={(title) => update.mutate({ id: notebook.id, fields: { title } })}
               onColorChange={(color) => update.mutate({ id: notebook.id, fields: { color } })}
               onDelete={() => handleDeleteNotebook(notebook)}
             />
-          ))}
-        </div>
+          )}
+        />
       )}
     </div>
   );

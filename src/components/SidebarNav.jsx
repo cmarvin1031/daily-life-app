@@ -4,7 +4,7 @@ import './SidebarNav.css';
 
 export default function SidebarNav({ activeTab, onSelectTab, onOpenSettings }) {
   return (
-    <aside className="sidebar-nav">
+    <aside className="sidebar-nav" aria-label="Main">
       <div className="sidebar-brand">
         <span className="sidebar-brand-mark">◐</span>
         <span>Daily Life</span>
@@ -17,6 +17,7 @@ export default function SidebarNav({ activeTab, onSelectTab, onOpenSettings }) {
             key={item.key}
             className={`sidebar-item${activeTab === item.key ? ' active' : ''}`}
             onClick={() => onSelectTab(item.key)}
+            aria-current={activeTab === item.key ? 'page' : undefined}
           >
             <span className="sidebar-item-icon">
               <NavIcon name={item.key} size={18} />

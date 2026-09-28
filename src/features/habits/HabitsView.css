@@ -294,6 +294,17 @@
   border-color: var(--text);
 }
 
+@media (max-width: 900px) {
+  /* Room for the drag handle without squeezing the habit name. */
+  .habit-row-main {
+    gap: 8px;
+  }
+
+  .habit-row {
+    padding: 10px 12px 10px 6px;
+  }
+}
+
 /* Archived section */
 
 .habits-archived-toggle {

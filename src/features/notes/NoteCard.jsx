@@ -4,7 +4,7 @@ import { useDebouncedActions } from '../../lib/useDebouncedActions.js';
 
 const SAVE_DELAY_MS = 800;
 
-export default function NoteCard({ note, update, onDelete }) {
+export default function NoteCard({ note, update, dragHandle, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
@@ -33,6 +33,7 @@ export default function NoteCard({ note, update, onDelete }) {
   return (
     <div className="note-page">
       <div className="note-page-main">
+        {dragHandle}
         <ExpandToggle expanded={expanded} onClick={() => setExpanded((v) => !v)} label="page" />
         <span className="note-page-title">{note.title || 'Untitled'}</span>
       </div>

@@ -9,7 +9,16 @@ import QuantityPrompt from './QuantityPrompt.jsx';
 
 const HABIT_ICONS = ['🏃', '💧', '📚', '🧘', '😴', '🍎', '💊', '🪥', '💪', '🧹', '💰', '🙏', '📝', '🎨', '🎸', '🌱'];
 
-export default function HabitRow({ habit, todayKey, onArchive, onRename, onColorChange, onIconChange, onTargetChange }) {
+export default function HabitRow({
+  habit,
+  todayKey,
+  dragHandle,
+  onArchive,
+  onRename,
+  onColorChange,
+  onIconChange,
+  onTargetChange,
+}) {
   const { data: logs = [] } = useHabitLog(habit.id);
   const { log, unlog, setValue } = useHabitLogMutations(habit.id);
 
@@ -91,6 +100,7 @@ export default function HabitRow({ habit, todayKey, onArchive, onRename, onColor
   return (
     <div className="card habit-row">
       <div className="habit-row-main">
+        {dragHandle}
         <ExpandToggle expanded={historyOpen} onClick={toggleHistory} label="history" />
 
         <div className="habit-row-avatar" style={{ background: color }}>

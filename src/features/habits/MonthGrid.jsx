@@ -44,7 +44,7 @@ export default function MonthGrid({ habit, valueByDate, onSelectDate }) {
         </button>
       </div>
 
-      <div className="month-grid" role="grid">
+      <div className="month-grid">
         {WEEKDAYS.map((d, i) => (
           <span key={i} className="month-weekday" aria-hidden="true">
             {d}

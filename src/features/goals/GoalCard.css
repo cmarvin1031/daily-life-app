@@ -106,7 +106,7 @@
 
 .goal-details-category-toggle button.active {
   background: var(--accent-dark);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 .goal-details-field {

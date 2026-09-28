@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { optimistic } from '../../lib/optimistic.js';
+import { optimistic, withPositions } from '../../lib/optimistic.js';
+import { reorderRows } from '../../lib/reorder.js';
 import * as api from './habitsApi.js';
 
 export function useHabits(archived = false, options = {}) {
@@ -20,6 +21,11 @@ export function useHabitMutations() {
     archive: useMutation({ mutationFn: (id) => api.archiveHabit(id), onSuccess: invalidate }),
     restore: useMutation({ mutationFn: (id) => api.restoreHabit(id), onSuccess: invalidate }),
     remove: useMutation({ mutationFn: (id) => api.deleteHabitPermanently(id), onSuccess: invalidate }),
+    // Active habits only; the Dashboard chips follow the same order.
+    reorder: useMutation({
+      mutationFn: (orderedItems) => reorderRows('habits', orderedItems),
+      ...optimistic(queryClient, (orderedItems) => [{ key: ['habits', false], apply: withPositions(orderedItems) }], invalidate),
+    }),
   };
 }
 

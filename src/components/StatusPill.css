@@ -9,16 +9,16 @@
 }
 
 .pill-green {
-  background: #dcfce7;
-  color: #15803d;
+  background: color-mix(in srgb, #22c55e 18%, var(--surface));
+  color: var(--pill-green-text);
 }
 
 .pill-blue {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: color-mix(in srgb, #3b82f6 16%, var(--surface));
+  color: var(--pill-blue-text);
 }
 
 .pill-gray {
-  background: #f3f4f6;
+  background: color-mix(in srgb, var(--text-muted) 14%, var(--surface));
   color: var(--text-muted);
 }

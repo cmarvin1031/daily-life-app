@@ -31,7 +31,14 @@ export default function QuantityPrompt({ habit, dateKey, value, onSave, onClose 
 
   return (
     <div className="qty-overlay" onClick={onClose}>
-      <form className="card qty-panel" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
+      <form
+        className="card qty-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Log ${habit.name}`}
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={submit}
+      >
         <div className="qty-title">
           {habit.icon ? `${habit.icon} ` : ''}
           {habit.name}

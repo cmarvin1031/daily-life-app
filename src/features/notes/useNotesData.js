@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { optimistic, withPositions } from '../../lib/optimistic.js';
+import { reorderRows } from '../../lib/reorder.js';
 import * as notebooksApi from './notebooksApi.js';
 import * as notesApi from './notesApi.js';
 
@@ -29,6 +31,10 @@ export function useNotebookMutations() {
       onSuccess: invalidate,
     }),
     remove: useMutation({ mutationFn: (id) => notebooksApi.deleteNotebook(id), onSuccess: invalidate }),
+    reorder: useMutation({
+      mutationFn: (orderedItems) => reorderRows('notebooks', orderedItems),
+      ...optimistic(queryClient, (orderedItems) => [{ key: ['notebooks'], apply: withPositions(orderedItems) }], invalidate),
+    }),
   };
 }
 
@@ -54,5 +60,13 @@ export function useNoteMutations(notebookId) {
     }),
     update: useMutation({ mutationFn: ({ id, fields }) => notesApi.updateNote(id, fields), onSuccess: invalidate }),
     remove: useMutation({ mutationFn: (id) => notesApi.deleteNote(id), onSuccess: invalidate }),
+    reorder: useMutation({
+      mutationFn: (orderedItems) => reorderRows('notes', orderedItems),
+      ...optimistic(
+        queryClient,
+        (orderedItems) => [{ key: ['notes', notebookId], apply: withPositions(orderedItems) }],
+        invalidate,
+      ),
+    }),
   };
 }

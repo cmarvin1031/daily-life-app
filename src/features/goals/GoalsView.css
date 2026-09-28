@@ -50,7 +50,7 @@
 
 .goals-add-toggle button.active {
   background: var(--accent-dark);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 .goals-add-target {

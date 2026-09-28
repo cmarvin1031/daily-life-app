@@ -22,7 +22,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--chip-purple);
-  background: color-mix(in srgb, var(--chip-purple) 12%, white);
+  background: color-mix(in srgb, var(--chip-purple) 12%, var(--surface));
   border-radius: var(--radius-pill);
   padding: 6px 14px;
 }

@@ -1,5 +1,6 @@
 import { formatHourLabel, parseDateKey, toDateKey, toMonthKey, toWeekKey } from '../../lib/dateUtils.js';
 import { useNow } from '../../lib/useNow.js';
+import { pressable } from '../../lib/a11y.js';
 import { ListCard } from '../../components/ListCard.jsx';
 import StatusPill from '../../components/StatusPill.jsx';
 import { useDayInit, useSchedule, useTodos, useTodoMutations, usePriorities } from '../planner/usePlannerData.js';
@@ -111,7 +112,7 @@ export default function DashboardView({ onNavigate }) {
                   <div
                     key={item.id}
                     className={item.source === 'planner' ? 'dashboard-event-row clickable' : 'dashboard-event-row'}
-                    onClick={item.source === 'planner' ? () => onNavigate('planner') : undefined}
+                    {...(item.source === 'planner' ? pressable(() => onNavigate('planner')) : {})}
                   >
                     <span className="text-muted dashboard-event-time">{item.subtitle}</span>
                     <span className={`dashboard-event-dot ${item.source}`} />
@@ -126,7 +127,7 @@ export default function DashboardView({ onNavigate }) {
             {todosRemaining.length > 0 && (
               <div className="dashboard-todo-list">
                 {todosRemaining.map((todo) => (
-                  <div key={todo.id} className="dashboard-todo-row" onClick={() => onNavigate('todos')}>
+                  <div key={todo.id} className="dashboard-todo-row">
                     {/* The circle ticks the item off right here; the text
                         still opens Planner for editing/reordering. */}
                     <button
@@ -140,7 +141,9 @@ export default function DashboardView({ onNavigate }) {
                     >
                       <span className="dashboard-todo-marker" aria-hidden="true" />
                     </button>
-                    <span className="dashboard-todo-text">{todo.text}</span>
+                    <span className="dashboard-todo-text" {...pressable(() => onNavigate('todos'))}>
+                      {todo.text}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -208,7 +211,7 @@ export default function DashboardView({ onNavigate }) {
                   const color = paletteColorValue(habit.color);
                   const isDoneToday = doneToday.has(habit.id);
                   return (
-                    <div key={habit.id} className="dashboard-habit-row" onClick={() => onNavigate('habits')}>
+                    <div key={habit.id} className="dashboard-habit-row" {...pressable(() => onNavigate('habits'))}>
                       <div className="dashboard-habit-row-avatar" style={{ background: color }}>
                         {habit.icon || habit.name.charAt(0).toUpperCase()}
                       </div>
@@ -244,7 +247,7 @@ export default function DashboardView({ onNavigate }) {
             {activeGoals.length > 0 && (
               <div className="dashboard-goals-list">
                 {activeGoals.map((goal) => (
-                  <div key={goal.id} className="dashboard-goal-row" onClick={() => onNavigate('goals')}>
+                  <div key={goal.id} className="dashboard-goal-row" {...pressable(() => onNavigate('goals'))}>
                     <span className={`dashboard-goal-icon ${goal.category}`}>
                       {goal.category === 'professional' ? '💼' : '🎯'}
                     </span>

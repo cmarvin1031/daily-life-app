@@ -5,6 +5,7 @@ import { ListCard } from '../../components/ListCard.jsx';
 import { useHabits, useHabitMutations, useLogsForDate } from './useHabitsData.js';
 import { isLogDone } from './habitProgress.js';
 import HabitRow from './HabitRow.jsx';
+import SortableList from '../../components/SortableList.jsx';
 import ProgressRing from './ProgressRing.jsx';
 import './HabitsView.css';
 
@@ -19,7 +20,7 @@ export default function HabitsView() {
   const { data: habits = [] } = useHabits(false);
   const { data: todayLogs = {} } = useLogsForDate(todayKey);
   const { data: archivedHabits = [] } = useHabits(true, { enabled: showArchived });
-  const { add, update, archive, restore, remove } = useHabitMutations();
+  const { add, update, archive, restore, remove, reorder } = useHabitMutations();
 
   const doneCount = habits.filter((h) => isLogDone(h, todayLogs[h.id])).length;
 
@@ -73,20 +74,24 @@ export default function HabitsView() {
       {habits.length === 0 ? (
         <p className="text-muted habits-empty">No habits yet — add one above to get started.</p>
       ) : (
-        <div className="habits-list">
-          {habits.map((habit) => (
+        <SortableList
+          className="habits-list"
+          label="habit"
+          items={habits}
+          onReorder={(ordered) => reorder.mutate(ordered)}
+          renderItem={(habit, dragHandle) => (
             <HabitRow
-              key={habit.id}
               habit={habit}
               todayKey={todayKey}
+              dragHandle={dragHandle}
               onArchive={() => archive.mutate(habit.id)}
               onRename={(name) => update.mutate({ id: habit.id, fields: { name } })}
               onColorChange={(color) => update.mutate({ id: habit.id, fields: { color } })}
               onIconChange={(icon) => update.mutate({ id: habit.id, fields: { icon } })}
               onTargetChange={(fields) => update.mutate({ id: habit.id, fields })}
             />
-          ))}
-        </div>
+          )}
+        />
       )}
 
       <button className="habits-archived-toggle" onClick={() => setShowArchived((v) => !v)}>

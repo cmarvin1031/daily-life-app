@@ -1,7 +1,14 @@
 import { useState } from 'react';
-import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { pressable } from '../lib/a11y.js';
 import './EditableList.css';
 
 export default function EditableList({
@@ -21,7 +28,10 @@ export default function EditableList({
   const [editingId, setEditingId] = useState(null);
   const [editValue, setEditValue] = useState('');
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   function submitAdd(e) {
     e.preventDefault();
@@ -135,7 +145,12 @@ function Row({
       </button>
 
       {withCheckbox && (
-        <input type="checkbox" checked={!!item.done} onChange={(e) => onToggle(item.id, e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={!!item.done}
+          onChange={(e) => onToggle(item.id, e.target.checked)}
+          aria-label={`Mark "${item.text}" ${item.done ? 'not done' : 'done'}`}
+        />
       )}
 
       {editing ? (
@@ -151,7 +166,7 @@ function Row({
           }}
         />
       ) : (
-        <span className="editable-list-text" onClick={onStartEdit}>
+        <span className="editable-list-text" {...pressable(onStartEdit)} aria-label={`Edit "${item.text}"`}>
           {item.text}
         </span>
       )}

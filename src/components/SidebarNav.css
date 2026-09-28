@@ -65,7 +65,7 @@
 
 .sidebar-item.active {
   background: var(--accent-dark);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 .sidebar-item-icon {

@@ -39,7 +39,7 @@
 }
 
 .signin-error {
-  color: #dc2626;
+  color: var(--danger);
   font-size: 13px;
 }
 

@@ -29,7 +29,7 @@
   font-size: 13px;
   font-weight: 500;
   line-height: 1.4;
-  background: var(--text);
+  background: var(--toast-bg);
   color: #ffffff;
 }
 
@@ -39,6 +39,7 @@
 
 .toast--success {
   background: var(--accent-dark);
+  color: var(--on-accent);
 }
 
 .toast-message {

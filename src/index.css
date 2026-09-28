@@ -1,8 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+/* Theme tokens. Light is the default; dark applies when the system is in
+   dark mode (unless the user forced light in Settings) or when forced via
+   data-theme="dark" on <html> (see src/lib/theme.js). Components should
+   only ever use these tokens -- tints are made with
+   color-mix(in srgb, <colour> N%, var(--surface)) so they follow the theme.
+
+   --accent-dark is the "strong brand" colour: backgrounds of primary
+   controls (text on them uses --on-accent) and brand-coloured text/strokes.
+   It's deep green in light mode and bright mint in dark mode. */
 :root {
   --accent-dark: #0f3d2e;
   --accent-dark-2: #14432f;
+  --on-accent: #ffffff;
   --accent: #22c55e;
   --accent-2: #34d399;
   --bg: #f5f6f8;
@@ -10,6 +20,14 @@
   --text: #111827;
   --text-muted: #6b7280;
   --border: #e5e7eb;
+  --bar-bg: rgba(255, 255, 255, 0.9);
+  --toast-bg: #111827;
+  --danger: #dc2626;
+  --warn-bg: #fef3c7;
+  --warn-text: #92400e;
+  --warn-border: #fcd34d;
+  --pill-green-text: #15803d;
+  --pill-blue-text: #1d4ed8;
 
   --chip-blue: #3b82f6;
   --chip-orange: #f97316;
@@ -24,6 +42,52 @@
 
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   color-scheme: light;
+}
+
+/* Dark palette -- identical blocks for "system is dark" and "forced dark";
+   CSS has no way to share one declaration block between the two. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --accent-dark: #34d399;
+    --accent-dark-2: #10b981;
+    --on-accent: #052e16;
+    --bg: #0b0b0c;
+    --surface: #18181b;
+    --text: #f4f4f5;
+    --text-muted: #a1a1aa;
+    --border: #2c2c31;
+    --bar-bg: rgba(24, 24, 27, 0.85);
+    --toast-bg: #3f3f46;
+    --danger: #f87171;
+    --warn-bg: #422006;
+    --warn-text: #fcd34d;
+    --warn-border: #78350f;
+    --pill-green-text: #4ade80;
+    --pill-blue-text: #93c5fd;
+    --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --accent-dark: #34d399;
+  --accent-dark-2: #10b981;
+  --on-accent: #052e16;
+  --bg: #0b0b0c;
+  --surface: #18181b;
+  --text: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --border: #2c2c31;
+  --bar-bg: rgba(24, 24, 27, 0.85);
+  --toast-bg: #3f3f46;
+  --danger: #f87171;
+  --warn-bg: #422006;
+  --warn-text: #fcd34d;
+  --warn-border: #78350f;
+  --pill-green-text: #4ade80;
+  --pill-blue-text: #93c5fd;
+  --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
 }
 
 * {
@@ -90,6 +154,41 @@ a {
   color: inherit;
 }
 
+/* Keyboard focus: a clear ring on anything interactive, only when focus
+   came from the keyboard (not on tap/click). Inputs keep their own
+   :focus outline below. */
+button:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Shared segmented control (e.g. Settings > Appearance). */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 2px;
+}
+
+.segmented button {
+  border: none;
+  background: none;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--accent-dark);
+  color: var(--on-accent);
+}
+
 /* Shared design-system primitives (used by StatCard/ListCard/StatusPill/etc.) */
 
 .card {
@@ -145,7 +244,7 @@ a {
 
 .btn-primary {
   background: var(--accent-dark);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 .btn-primary:hover {
